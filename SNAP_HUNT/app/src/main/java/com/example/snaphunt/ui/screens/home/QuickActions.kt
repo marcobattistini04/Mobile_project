@@ -16,9 +16,10 @@ import com.example.snaphunt.utils.rememberCameraLauncher
 import com.example.snaphunt.utils.saveImageToStorage
 import androidx.compose.material3.Text
 import coil.compose.AsyncImage
+import com.example.snaphunt.presentation.sign_in.AuthViewModel
 
 @Composable
-fun QuickActions(themeState: ThemeState, themeActions: ThemeActions) {
+fun QuickActions(authViewModel: AuthViewModel, themeState: ThemeState, themeActions: ThemeActions) {
     val ctx = LocalContext.current
     val (pictureUri, takePicture, reset) = rememberCameraLauncher()
     if (pictureUri == null) {

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "990482453364",
+    "project_id": "snap-hunt-26",
+    "storage_bucket": "snap-hunt-26.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:990482453364:android:5eb585cbedf8cdb3d85221",
+        "android_client_info": {
+          "package_name": "com.example.snaphunt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "990482453364-9936lt8aark7qj6a4rvclvuv96jjrb8v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.snaphunt",
+            "certificate_hash": "059cf522e4d3ee50fa44e2321c6ec78cdbf0527d"
+          }
+        },
+        {
+          "client_id": "990482453364-kaoejqgoqvuu31tu8fo1sd58djcp719t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwQJnyzmUe-uiYlXE5SQMW_SKU2xW3sqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "990482453364-kaoejqgoqvuu31tu8fo1sd58djcp719t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

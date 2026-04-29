@@ -8,11 +8,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.snaphunt.data.user.UserLogInData
 import com.example.snaphunt.ui.theme.ThemeActions
 import com.example.snaphunt.ui.theme.ThemeState
 
 @Composable
-fun ProfileHeader(themeState: ThemeState, themeActions: ThemeActions) {
+fun ProfileHeader(user: UserLogInData, themeState: ThemeState, themeActions: ThemeActions) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -27,5 +28,6 @@ fun ProfileHeader(themeState: ThemeState, themeActions: ThemeActions) {
             text = "Your Profile",
             style = MaterialTheme.typography.bodyLarge
         )
+        // NEW GRAPHIC OPTIONS LIKE THE GOOGLE IMAGE PROFILE ECC
     }
 }

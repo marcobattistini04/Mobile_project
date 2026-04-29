@@ -1,6 +1,7 @@
 [versions]
 agp = "9.0.1"
 coreKtx = "1.18.0"
+firebaseAuthKtx = "23.2.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
@@ -14,6 +15,7 @@ foundation = "1.10.5"
 engageCore = "1.5.11"
 lifecycleViewmodelCompose = "2.10.0"
 navigationCompose = "2.9.7"
+playServicesAuth = "21.5.1"
 uiGraphics = "1.10.5"
 material3 = "1.4.0"
 media3Exoplayer = "1.10.0"
@@ -22,6 +24,7 @@ material3Version = "1.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -43,6 +46,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3Exoplayer" }
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3Ui" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3Version" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

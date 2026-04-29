@@ -7,12 +7,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.snaphunt.data.user.UserLogInData
 import com.example.snaphunt.ui.components.ActionButton
 import com.example.snaphunt.ui.theme.ThemeActions
 import com.example.snaphunt.ui.theme.ThemeState
 
 @Composable
-fun QuickActions(themeState: ThemeState, themeActions: ThemeActions) {
+fun QuickActions(user: UserLogInData, themeState: ThemeState, themeActions: ThemeActions) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

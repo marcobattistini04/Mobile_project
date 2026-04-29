@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -64,8 +65,12 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.3")
     implementation("io.insert-koin:koin-androidx-compose:4.0.2")
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.play.services.auth)
+
+
 }
