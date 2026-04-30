@@ -26,6 +26,7 @@ class AuthViewModel(
             _state.update {
                 it.copy(
                     isLoading = false,
+                    isSignInSuccessful = true,
                     user = result.data,
                     error = result.errorMessage
                 )

@@ -35,7 +35,7 @@ fun AppBar(title: String, navigationController: NavHostController) {
             }
             if(title != "Profile") {
                 IconButton(onClick = {navigationController.navigate(SnapHuntRoute.ProfileScreen)}) {
-                    Icon(Icons.Outlined.AccountCircle, "Profile")
+                    Icon(Icons.Outlined.AccountCircle, "Personal Space")
                 }
             }
         },

@@ -37,7 +37,7 @@ fun HomeHeader(authViewModel: AuthViewModel, themeState: ThemeState, themeAction
             )
         } else {
             Text(
-                text = "Welcome" + user!!.username.toString() + "👋",
+                text = "Welcome " + user!!.username.toString() + "👋",
                 style = MaterialTheme.typography.bodyLarge
             )
         }
