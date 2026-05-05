@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.snaphunt.ui.theme.ThemeActions
-import com.example.snaphunt.ui.theme.ThemeState
+import com.example.snaphunt.user_settings.SettingsActions
+import com.example.snaphunt.user_settings.SettingsState
 import com.example.snaphunt.utils.rememberCameraLauncher
 import com.example.snaphunt.utils.saveImageToStorage
 import androidx.compose.material3.Text
@@ -19,7 +19,7 @@ import coil.compose.AsyncImage
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 
 @Composable
-fun QuickActions(authViewModel: AuthViewModel, themeState: ThemeState, themeActions: ThemeActions) {
+fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeActions: SettingsActions) {
     val ctx = LocalContext.current
     val (pictureUri, takePicture, reset) = rememberCameraLauncher()
     if (pictureUri == null) {

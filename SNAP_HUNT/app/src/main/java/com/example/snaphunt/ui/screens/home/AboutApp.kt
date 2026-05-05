@@ -17,11 +17,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.snaphunt.ui.theme.ThemeActions
-import com.example.snaphunt.ui.theme.ThemeState
+import com.example.snaphunt.user_settings.SettingsActions
+import com.example.snaphunt.user_settings.SettingsState
 
 @Composable
-fun AboutApp(themeState: ThemeState, themeActions: ThemeActions) {
+fun AboutApp(themeState: SettingsState, themeActions: SettingsActions) {
     var expanded by remember { mutableStateOf(false) }
 
     Column(

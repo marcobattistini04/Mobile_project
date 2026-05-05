@@ -20,6 +20,7 @@ import com.example.snaphunt.SnapHuntRoute
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(title: String, navigationController: NavHostController) {
+    val currentDestination = navigationController.currentBackStackEntry?.destination?.route
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -29,12 +30,28 @@ fun AppBar(title: String, navigationController: NavHostController) {
         },
         actions = {
             if (title != "Settings") {
-                IconButton(onClick = { navigationController.navigate(SnapHuntRoute.SettingsScreen)}) {
+                IconButton(onClick = {
+                    navigationController.navigate(SnapHuntRoute.SettingsScreen) {
+                        launchSingleTop = true
+                        popUpTo(navigationController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
+                }) {
                     Icon(Icons.Outlined.Settings, "Settings")
                 }
             }
-            if(title != "Profile") {
-                IconButton(onClick = {navigationController.navigate(SnapHuntRoute.ProfileScreen)}) {
+            if(title != "Personal Space") {
+                IconButton(onClick = {
+                    navigationController.navigate(SnapHuntRoute.ProfileScreen) {
+                        launchSingleTop = true
+                        popUpTo(navigationController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
+                }) {
                     Icon(Icons.Outlined.AccountCircle, "Personal Space")
                 }
             }

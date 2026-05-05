@@ -9,11 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.snaphunt.data.user.UserLogInData
-import com.example.snaphunt.ui.theme.ThemeActions
-import com.example.snaphunt.ui.theme.ThemeState
+import com.example.snaphunt.user_settings.SettingsActions
+import com.example.snaphunt.user_settings.SettingsState
 
 @Composable
-fun AboutUser(userLogInData: UserLogInData, themeState: ThemeState, themeActions: ThemeActions) {
+fun AboutUser(userLogInData: UserLogInData, themeState: SettingsState, themeActions: SettingsActions) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

@@ -10,15 +10,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.snaphunt.data.user.UserLogInData
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
-import com.example.snaphunt.ui.theme.ThemeActions
-import com.example.snaphunt.ui.theme.ThemeState
-import com.example.snaphunt.presentation.sign_in.GoogleAuthUiClient
+import com.example.snaphunt.user_settings.SettingsActions
+import com.example.snaphunt.user_settings.SettingsState
 
 
 @Composable
-fun HomeHeader(authViewModel: AuthViewModel, themeState: ThemeState, themeActions: ThemeActions) {
+fun HomeHeader(authViewModel: AuthViewModel, themeState: SettingsState, themeActions: SettingsActions) {
     val state by authViewModel.state.collectAsState()
     val user = state.user
     Column(

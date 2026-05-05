@@ -4,20 +4,16 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -28,8 +24,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.snaphunt.data.user.UserLogInData
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
-import com.example.snaphunt.ui.theme.ThemeActions
-import com.example.snaphunt.ui.theme.ThemeState
+import com.example.snaphunt.user_settings.SettingsActions
+import com.example.snaphunt.user_settings.SettingsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -39,8 +35,8 @@ fun ProfileHeader(
     user: UserLogInData,
     scope: CoroutineScope,
     launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
-    themeState: ThemeState,
-    themeActions: ThemeActions
+    themeState: SettingsState,
+    themeActions: SettingsActions
 ) {
     Column(
         modifier = Modifier

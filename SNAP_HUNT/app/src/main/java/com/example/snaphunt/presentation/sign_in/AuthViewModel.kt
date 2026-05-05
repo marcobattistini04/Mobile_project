@@ -5,13 +5,15 @@ import android.content.IntentSender
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snaphunt.data.repositories.AuthRepository
+import com.example.snaphunt.data.repositories.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val repo: AuthRepository
+    private val repo: AuthRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuthUiState())
@@ -31,6 +33,9 @@ class AuthViewModel(
                     error = result.errorMessage
                 )
             }
+            result.data?.userId?.let { userId ->
+                settingsRepository.syncFromCloud()
+            }
         }
     }
 
@@ -39,9 +44,12 @@ class AuthViewModel(
         _state.update { it.copy(user = user) }
     }
 
-    suspend fun signOut() {
-        repo.signOut()
-        _state.update { AuthUiState() }
+    fun signOut() {
+        viewModelScope.launch {
+            settingsRepository.syncToCloud()
+            repo.signOut()
+            _state.update { AuthUiState() }
+        }
     }
 
     suspend fun getSignInIntent(): IntentSender? {

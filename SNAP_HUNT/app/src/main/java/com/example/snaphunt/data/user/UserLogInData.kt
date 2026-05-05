@@ -1,6 +1,7 @@
 package com.example.snaphunt.data.user
 
-import com.example.snaphunt.ui.theme.ThemeState
+import com.example.snaphunt.data.models.AppTheme
+import com.example.snaphunt.data.models.ColorPalette
 
 data class UserLogInData(
     val userId: String,
@@ -9,6 +10,11 @@ data class UserLogInData(
 )
 
 data class UserSettings(
-    val themeState: ThemeState,
-    val notificationEnabled: Boolean
-)
+    val notificationEnabled: Boolean = true,
+    val theme: AppTheme = AppTheme.System,
+    val dynamicColor: Boolean = true,
+    val palette: ColorPalette = ColorPalette.Default,
+    val lastUpdated: Long = System.currentTimeMillis()
+) {
+    constructor() : this(true, AppTheme.System, true, ColorPalette.Default, 0L)
+}

@@ -21,12 +21,12 @@ import androidx.navigation.NavHostController
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.components.AppBar
 import com.example.snaphunt.ui.components.SignInScreen
-import com.example.snaphunt.ui.theme.ThemeActions
-import com.example.snaphunt.ui.theme.ThemeState
+import com.example.snaphunt.user_settings.SettingsActions
+import com.example.snaphunt.user_settings.SettingsState
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostController, themeState: ThemeState, themeActions: ThemeActions) {
+fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostController, themeState: SettingsState, themeActions: SettingsActions) {
 
     val state by authViewModel.state.collectAsState()
     val ctx = LocalContext.current
@@ -72,6 +72,7 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
                 item {
                     QuickActions(
                         authViewModel,
+                        navigationController,
                         user,
                         scope,
                         launcher,

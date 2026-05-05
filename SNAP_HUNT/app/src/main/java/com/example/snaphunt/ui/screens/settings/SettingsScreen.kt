@@ -12,15 +12,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -29,11 +24,11 @@ import androidx.navigation.NavHostController
 import com.example.snaphunt.data.models.AppTheme
 import com.example.snaphunt.data.models.ColorPalette
 import com.example.snaphunt.ui.components.AppBar
-import com.example.snaphunt.ui.theme.ThemeActions
-import com.example.snaphunt.ui.theme.ThemeState
+import com.example.snaphunt.user_settings.SettingsActions
+import com.example.snaphunt.user_settings.SettingsState
 
 @Composable
-fun SettingsScreen(navigationController: NavHostController, themeState: ThemeState, themeActions: ThemeActions) {
+fun SettingsScreen(navigationController: NavHostController, settingsState: SettingsState, settingsActions: SettingsActions) {
     Scaffold(
         topBar = { AppBar(title = "Settings", navigationController) }
     ) { contentPadding ->
@@ -45,6 +40,27 @@ fun SettingsScreen(navigationController: NavHostController, themeState: ThemeSta
         ) {
 
             Spacer(modifier = Modifier.size(32.dp))
+
+            Text(
+                "Enable SnapHunt Events notifications",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+            )
+            RadioListItem(
+                label = "Yes, I want to receive notifications",
+                selected = settingsState.dynamicColor,
+                onClick = { settingsActions.setEnableNotifications(true)}
+            )
+
+            RadioListItem(
+                label = "No, do not send me notifications",
+                selected = !settingsState.dynamicColor,
+                onClick = { settingsActions.setEnableNotifications(false)}
+            )
+
+            Spacer(modifier = Modifier.size(24.dp))
+
             Text(
                 "Theme",
                 style = MaterialTheme.typography.bodyLarge,
@@ -54,12 +70,12 @@ fun SettingsScreen(navigationController: NavHostController, themeState: ThemeSta
             AppTheme.entries.forEach { theme ->
                 RadioListItem(
                     label = theme.toString(),
-                    selected = theme == themeState.theme,
-                    onClick = { themeActions.setTheme(theme) }
+                    selected = theme == settingsState.theme,
+                    onClick = { settingsActions.setTheme(theme) }
                 )
             }
-
             Spacer(modifier = Modifier.size(24.dp))
+
             Text(
                 "Color Palette",
                 style = MaterialTheme.typography.bodyLarge,
@@ -69,11 +85,10 @@ fun SettingsScreen(navigationController: NavHostController, themeState: ThemeSta
             ColorPalette.entries.forEach { palette ->
                 RadioListItem(
                     label = palette.name,
-                    selected = palette == themeState.palette,
-                    onClick = { themeActions.setPalette(palette) }
+                    selected = palette == settingsState.palette,
+                    onClick = { settingsActions.setPalette(palette) }
                 )
             }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
@@ -85,14 +100,14 @@ fun SettingsScreen(navigationController: NavHostController, themeState: ThemeSta
 
             RadioListItem(
                 label = "Use system colors (Material You)",
-                selected = themeState.dynamicColor,
-                onClick = { themeActions.setDynamicColor(true) }
+                selected = settingsState.dynamicColor,
+                onClick = { settingsActions.setDynamicColor(true) }
             )
 
             RadioListItem(
                 label = "Use custom palette",
-                selected = !themeState.dynamicColor,
-                onClick = { themeActions.setDynamicColor(false) }
+                selected = !settingsState.dynamicColor,
+                onClick = { settingsActions.setDynamicColor(false) }
             )
         }
     }
