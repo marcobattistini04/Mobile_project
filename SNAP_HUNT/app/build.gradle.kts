@@ -72,7 +72,10 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.auth.ktx)
-    implementation(libs.play.services.auth)
+
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     implementation(libs.mpandroidchart)
 }

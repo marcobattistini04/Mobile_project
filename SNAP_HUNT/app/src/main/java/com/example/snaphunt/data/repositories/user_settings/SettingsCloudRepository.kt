@@ -1,4 +1,4 @@
-package com.example.snaphunt.data.repositories
+package com.example.snaphunt.data.repositories.user_settings
 
 import com.example.snaphunt.data.models.AppTheme
 import com.example.snaphunt.data.models.ColorPalette

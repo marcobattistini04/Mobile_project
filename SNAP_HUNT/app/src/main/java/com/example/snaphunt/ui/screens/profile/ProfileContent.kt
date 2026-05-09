@@ -1,9 +1,6 @@
 package com.example.snaphunt.ui.screens.profile
 
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,7 +19,6 @@ import com.example.snaphunt.ui.components.AppBar
 import com.example.snaphunt.ui.components.SignInScreen
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
-import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostController, themeState: SettingsState, themeActions: SettingsActions) {
@@ -41,13 +36,6 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
     }
 
     val user = state.user
-    val scope = rememberCoroutineScope()
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        val intent = result.data ?: return@rememberLauncherForActivityResult
-        authViewModel.onSignIn(intent)
-    }
 
     Scaffold(
         topBar = { AppBar(title = "Personal Space", navigationController) }
@@ -62,8 +50,6 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
                     ProfileHeader(
                         authViewModel,
                         user,
-                        scope,
-                        launcher,
                         themeState,
                         themeActions
                     )
@@ -74,8 +60,6 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
                         authViewModel,
                         navigationController,
                         user,
-                        scope,
-                        launcher,
                         themeState,
                         themeActions
                     )
@@ -87,14 +71,7 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
                 state = state,
                 motivation = "view your profile screen",
                 onSignInClick = {
-                    scope.launch {
-                        val intentSender = authViewModel.getSignInIntent()
-                        intentSender?.let {
-                            launcher.launch(
-                                IntentSenderRequest.Builder(it).build()
-                            )
-                        }
-                    }
+                    authViewModel.onSignIn()
                 }
             )
         }

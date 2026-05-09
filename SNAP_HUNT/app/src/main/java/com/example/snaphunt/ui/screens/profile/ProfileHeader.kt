@@ -1,8 +1,5 @@
 package com.example.snaphunt.ui.screens.profile
 
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.IntentSenderRequest
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,15 +23,11 @@ import com.example.snaphunt.data.user.UserLogInData
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileHeader(
     authViewModel: AuthViewModel,
     user: UserLogInData,
-    scope: CoroutineScope,
-    launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
     themeState: SettingsState,
     themeActions: SettingsActions
 ) {
@@ -57,9 +50,7 @@ fun ProfileHeader(
             )
 
             Button( onClick = {
-                scope.launch {
                     authViewModel.signOut()
-                }
             }) {
                 Text(textAlign = TextAlign.Center, fontSize = 16.sp, fontWeight = FontWeight.Bold, text = "Sign out")
             }

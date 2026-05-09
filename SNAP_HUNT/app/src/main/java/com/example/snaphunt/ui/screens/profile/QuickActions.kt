@@ -1,8 +1,5 @@
 package com.example.snaphunt.ui.screens.profile
 
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.IntentSenderRequest
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,14 +14,11 @@ import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.components.ActionButton
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
-import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun QuickActions(authViewModel: AuthViewModel,
                  navigationController: NavHostController,
                  user: UserLogInData,
-                 scope: CoroutineScope,
-                 launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
                  themeState: SettingsState,
                  themeActions: SettingsActions) {
 

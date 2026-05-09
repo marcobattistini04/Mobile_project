@@ -1,91 +1,107 @@
 package com.example.snaphunt.presentation.sign_in
 
 import android.content.Context
-import android.content.Intent
-import android.content.IntentSender
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
 import com.example.snaphunt.R
 import com.example.snaphunt.data.user.UserLogInData
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.tasks.await
 
 class GoogleAuthUiClient(
-    private val context: Context,
-    private val oneTapClient: SignInClient
+    private val context: Context
 ) {
     private val auth = Firebase.auth
+    private val credentialManager = CredentialManager.create(context)
 
-    suspend fun signIn(): IntentSender? {
-        val result = try {
-            oneTapClient.beginSignIn(
-                buildSignInRequest()
-            ).await()
-        } catch(e: Exception) {
-            e.printStackTrace()
-            if(e is CancellationException) throw e
-            null
-        }
-        return result?.pendingIntent?.intentSender
-    }
+    suspend fun signIn(): SignInResult {
 
-    suspend fun getSignWithIntent(intent: Intent): SignInResult {
-        val credential = oneTapClient.getSignInCredentialFromIntent(intent)
-        val googleIdToken = credential.googleIdToken
-        val googleCredentials = GoogleAuthProvider.getCredential(googleIdToken, null)
         return try {
-            val user = auth.signInWithCredential(googleCredentials).await().user
-            SignInResult(
-                data = user?.run {
-                    UserLogInData(
-                        userId = uid,
-                        username = displayName,
-                        profilePictureUri = photoUrl?.toString()
-                    )
-                },
-                errorMessage = null
+            val googleIdOption = GetGoogleIdOption.Builder()
+                .setFilterByAuthorizedAccounts(false)
+                .setServerClientId(
+                    context.getString(R.string.web_client_id)
+                )
+                .setAutoSelectEnabled(true)
+                .build()
+
+            val request = GetCredentialRequest.Builder()
+                .addCredentialOption(googleIdOption)
+                .build()
+
+            val result = credentialManager.getCredential(
+                context = context,
+                request = request
             )
-        } catch (e: Exception) {
+
+            val credential = result.credential
+
+            if (
+                credential is CustomCredential &&
+                credential.type ==
+                GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            ) {
+
+                val googleIdTokenCredential =
+                    GoogleIdTokenCredential.createFrom(credential.data)
+
+                val googleIdToken = googleIdTokenCredential.idToken
+
+                val firebaseCredential =
+                    GoogleAuthProvider.getCredential(
+                        googleIdToken,
+                        null
+                    )
+
+                val user = auth.signInWithCredential(firebaseCredential)
+                    .await()
+                    .user
+
+                SignInResult(
+                    data = user?.run {
+                        UserLogInData(
+                            userId = uid,
+                            username = displayName,
+                            profilePictureUri = photoUrl?.toString()
+                        )
+                    },
+                    errorMessage = null
+                )
+
+            } else {
+
+                SignInResult(
+                    data = null,
+                    errorMessage = "credentials not valid"
+                )
+            }
+
+        } catch (e: androidx.credentials.exceptions.GetCredentialException) {
             e.printStackTrace()
-            if(e is CancellationException) throw e
-            SignInResult(
+
+            return SignInResult(
                 data = null,
-                errorMessage = e.message
+                errorMessage = "Sign in failed or canceled by user"
             )
         }
     }
 
     suspend fun signOut() {
-        try {
-            oneTapClient.signOut().await()
-            auth.signOut()
-        } catch(e: Exception) {
-            e.printStackTrace()
-            if(e is CancellationException) throw e
+        auth.signOut()
+    }
+
+    fun getSignedInUser(): UserLogInData? {
+        return auth.currentUser?.run {
+            UserLogInData(
+                userId = uid,
+                username = displayName,
+                profilePictureUri = photoUrl?.toString()
+            )
         }
     }
-
-    fun getSignedInUser(): UserLogInData? = auth.currentUser?.run {
-        UserLogInData (
-            userId = uid,
-            username = displayName,
-            profilePictureUri = photoUrl?.toString()
-        )
-    }
-
-    private fun buildSignInRequest(): BeginSignInRequest {
-        return BeginSignInRequest.Builder().setGoogleIdTokenRequestOptions(
-            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                .setSupported(true)
-                .setFilterByAuthorizedAccounts(false)
-                .setServerClientId(context.getString(R.string.web_client_Id))
-                .build()
-        )
-            .setAutoSelectEnabled(true)
-            .build()
-    }
-
 }

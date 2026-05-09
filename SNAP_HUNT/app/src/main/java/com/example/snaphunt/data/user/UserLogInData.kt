@@ -18,3 +18,9 @@ data class UserSettings(
 ) {
     constructor() : this(true, AppTheme.System, true, ColorPalette.Default, 0L)
 }
+
+data class PhotoData(
+    val id: String = "",
+    val url: String = "",
+    val createdAt: Long = System.currentTimeMillis()
+)

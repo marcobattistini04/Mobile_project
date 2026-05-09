@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snaphunt.data.models.ColorPalette
 import com.example.snaphunt.data.models.AppTheme
-import com.example.snaphunt.data.repositories.SettingsCloudRepository
-import com.example.snaphunt.data.repositories.SettingsRepository
+import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn

@@ -1,11 +1,9 @@
 package com.example.snaphunt.presentation.sign_in
 
-import android.content.Intent
-import android.content.IntentSender
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.snaphunt.data.repositories.AuthRepository
-import com.example.snaphunt.data.repositories.SettingsRepository
+import com.example.snaphunt.data.repositories.authentication.AuthRepository
+import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,16 +17,16 @@ class AuthViewModel(
     private val _state = MutableStateFlow(AuthUiState())
     val state = _state.asStateFlow()
 
-    fun onSignIn(intent: Intent) {
+    fun onSignIn() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
 
-            val result = repo.signIn(intent)
+            val result = repo.signIn()
 
             _state.update {
                 it.copy(
                     isLoading = false,
-                    isSignInSuccessful = true,
+                    isSignInSuccessful = result.data != null,
                     user = result.data,
                     error = result.errorMessage
                 )
@@ -50,9 +48,5 @@ class AuthViewModel(
             repo.signOut()
             _state.update { AuthUiState() }
         }
-    }
-
-    suspend fun getSignInIntent(): IntentSender? {
-        return repo.getIntentSender()
     }
 }
