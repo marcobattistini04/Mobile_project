@@ -65,17 +65,28 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.koin.androidx.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.coil.compose)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.firestore.ktx)
-    implementation(libs.firebase.auth.ktx)
 
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
 
     implementation(libs.mpandroidchart)
+
+    //supabase
+    implementation("io.github.jan-tennert.supabase:auth-kt:3.6.0")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:3.6.0")
+    implementation("io.github.jan-tennert.supabase:storage-kt:3.6.0")
+
+    implementation(platform("io.ktor:ktor-bom:3.5.0"))
+    implementation("io.ktor:ktor-client-core:3.5.0")
+    implementation("io.ktor:ktor-client-okhttp:3.5.0")
+    implementation("io.ktor:ktor-client-plugins:3.1.1")
+    implementation("io.ktor:ktor-client-content-negotiation:3.5.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.5.0")
+
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
 }

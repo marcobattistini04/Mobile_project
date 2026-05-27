@@ -1,40 +1,57 @@
 package com.example.snaphunt.data.repositories.user_settings
 
+
 import com.example.snaphunt.data.models.AppTheme
 import com.example.snaphunt.data.models.ColorPalette
 import com.example.snaphunt.data.user.UserSettings
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class UserSettingsRow(
+    val user_id: String,
+    val notification_enabled: Boolean,
+    val theme: String,
+    val dynamic_color: Boolean,
+    val palette: String,
+    val last_updated: Long
+)
 
 class SettingsCloudRepository(
-    private val firestore: FirebaseFirestore
+    private val supabase: SupabaseClient
 ) {
 
     suspend fun upload(userId: String, settings: UserSettings) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("settings")
-            .document("main")
-            .set(settings)
-            .await()
+        val row = UserSettingsRow(
+            user_id = userId,
+            notification_enabled = settings.notificationEnabled,
+            theme = settings.theme.name,
+            dynamic_color = settings.dynamicColor,
+            palette = settings.palette.name,
+            last_updated = settings.lastUpdated
+        )
+
+        supabase.from("user_settings")
+            .upsert(row)
     }
 
     suspend fun download(userId: String): UserSettings? {
-        val doc = firestore.collection("users")
-            .document(userId)
-            .collection("settings")
-            .document("main")
-            .get()
-            .await()
-
-        if (!doc.exists()) return null
+        val row = supabase.from("user_settings")
+            .select {
+                filter {
+                    eq("user_id", userId)
+                }
+            }
+            .decodeSingleOrNull<UserSettingsRow>()
+            ?: return null
 
         return UserSettings(
-            notificationEnabled = doc.getBoolean("notificationEnabled") ?: true,
-            theme = AppTheme.valueOf(doc.getString("theme") ?: "System"),
-            dynamicColor = doc.getBoolean("dynamicColor") ?: true,
-            palette = ColorPalette.valueOf(doc.getString("palette") ?: "Default"),
-            lastUpdated = doc.getLong("lastUpdated") ?: 0L
+            notificationEnabled = row.notification_enabled,
+            theme = AppTheme.valueOf(row.theme),
+            dynamicColor = row.dynamic_color,
+            palette = ColorPalette.valueOf(row.palette),
+            lastUpdated = row.last_updated
         )
     }
 }

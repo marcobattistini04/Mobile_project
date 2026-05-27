@@ -40,16 +40,19 @@ class AuthViewModel(
         }
     }
 
-    fun restore() {
+    suspend fun restore() {
         val user = repo.getCurrentUser()
         _state.update { it.copy(user = user) }
     }
 
     fun signOut() {
         viewModelScope.launch {
-            settingsRepository.syncToCloud()
-            repo.signOut()
-            _state.update { AuthUiState() }
+            try {
+                settingsRepository.syncToCloud()
+            } finally {
+                repo.signOut()
+                _state.value = AuthUiState()
+            }
         }
     }
 }

@@ -9,15 +9,18 @@ import com.example.snaphunt.R
 import com.example.snaphunt.data.user.UserLogInData
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.tasks.await
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.Google
+import io.github.jan.supabase.auth.providers.builtin.IDToken
+import io.github.jan.supabase.postgrest.from
+import kotlinx.serialization.Serializable
 
 class GoogleAuthUiClient(
-    private val context: Context
+    private val context: Context,
+    private val supabase: SupabaseClient
 ) {
-    private val auth = Firebase.auth
+
     private val credentialManager = CredentialManager.create(context)
 
     suspend fun signIn(activity: Activity): SignInResult {
@@ -36,37 +39,46 @@ class GoogleAuthUiClient(
                 .build()
 
             val result = credentialManager.getCredential(
-                context = activity, // 👈 MUST be Activity here
+                context = activity,
                 request = request
             )
 
             val credential = result.credential
 
-            if (
-                credential is CustomCredential &&
+            if (credential is CustomCredential &&
                 credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
             ) {
 
-                val googleIdTokenCredential =
-                    GoogleIdTokenCredential.createFrom(credential.data)
+                val googleIdToken = GoogleIdTokenCredential
+                    .createFrom(credential.data)
+                    .idToken
 
-                val googleIdToken = googleIdTokenCredential.idToken
+                supabase.auth.signInWith(IDToken) {
+                    idToken = googleIdToken
+                    provider = Google
+                }
 
-                val firebaseCredential =
-                    GoogleAuthProvider.getCredential(googleIdToken, null)
+                val user = supabase.auth.currentUserOrNull()
+                    ?: return SignInResult(
+                        data = null,
+                        errorMessage = "User not available after sign-in"
+                    )
 
-                val user = auth.signInWithCredential(firebaseCredential)
-                    .await()
-                    .user
+
+                val profile = supabase
+                    .from("profiles")
+                    .select {
+                        filter { eq("user_id", user.id) }
+                    }
+                    .decodeSingleOrNull<ProfileRow>()
+
 
                 SignInResult(
-                    data = user?.run {
-                        UserLogInData(
-                            userId = uid,
-                            username = displayName,
-                            profilePictureUri = photoUrl?.toString()
-                        )
-                    },
+                    data = UserLogInData(
+                        userId = user.id,
+                        username = profile?.username,
+                        profilePictureUri = profile?.avatar_url
+                    ),
                     errorMessage = null
                 )
 
@@ -78,7 +90,6 @@ class GoogleAuthUiClient(
             }
 
         } catch (e: Exception) {
-            e.printStackTrace()
             SignInResult(
                 data = null,
                 errorMessage = e.message ?: "Sign in failed"
@@ -87,16 +98,24 @@ class GoogleAuthUiClient(
     }
 
     suspend fun signOut() {
-        auth.signOut()
+        supabase.auth.signOut()
     }
 
     fun getSignedInUser(): UserLogInData? {
-        return auth.currentUser?.run {
-            UserLogInData(
-                userId = uid,
-                username = displayName,
-                profilePictureUri = photoUrl?.toString()
-            )
-        }
+        val user = supabase.auth.currentUserOrNull()
+            ?: return null
+
+        return UserLogInData(
+            userId = user.id,
+            username = user.userMetadata?.get("name")?.toString(),
+            profilePictureUri = user.userMetadata?.get("avatar_url")?.toString()
+        )
     }
 }
+
+@Serializable
+data class ProfileRow(
+    val user_id: String,
+    val username: String? = null,
+    val avatar_url: String? = null
+)

@@ -10,41 +10,15 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.snaphunt.data.models.ColorPalette
 import com.example.snaphunt.data.models.AppTheme
 import com.example.snaphunt.data.user.UserSettings
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-
-class AuthManager(
-    private val firebaseAuth: FirebaseAuth
-) {
-    fun currentUserId(): String? {
-        return firebaseAuth.currentUser?.uid
-    }
-
-    fun authStateFlow(): Flow<String?> = callbackFlow {
-
-        val listener = FirebaseAuth.AuthStateListener { auth ->
-            trySend(auth.currentUser?.uid)
-        }
-
-        firebaseAuth.addAuthStateListener(listener)
-
-        trySend(firebaseAuth.currentUser?.uid)
-
-        awaitClose {
-            firebaseAuth.removeAuthStateListener(listener)
-        }
-    }
-
-}
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.SupabaseClient
 
 class SettingsRepository(
     private val dataStore: DataStore<Preferences>,
     private val cloud: SettingsCloudRepository,
-    private val authManager: AuthManager
+    private val supabase: SupabaseClient
 ) {
     companion object {
 
@@ -126,14 +100,14 @@ class SettingsRepository(
     }
 
     suspend fun syncToCloud() {
-        val userId = authManager.currentUserId() ?: return
+        val userId = supabase.auth.sessionManager.loadSession()?.user?.id  ?: return
         val settings = getCurrentSettings()
 
         cloud.upload(userId, settings)
     }
 
     suspend fun syncFromCloud() {
-        val userId = authManager.currentUserId() ?: return
+        val userId = supabase.auth.sessionManager.loadSession()?.user?.id ?: return
         val cloudSettings = cloud.download(userId) ?: return
 
         dataStore.edit { prefs ->
