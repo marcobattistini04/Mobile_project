@@ -1,5 +1,6 @@
 package com.example.snaphunt.presentation.sign_in
 
+import android.app.Activity
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -19,9 +20,9 @@ class GoogleAuthUiClient(
     private val auth = Firebase.auth
     private val credentialManager = CredentialManager.create(context)
 
-    suspend fun signIn(): SignInResult {
-
+    suspend fun signIn(activity: Activity): SignInResult {
         return try {
+
             val googleIdOption = GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
                 .setServerClientId(
@@ -35,7 +36,7 @@ class GoogleAuthUiClient(
                 .build()
 
             val result = credentialManager.getCredential(
-                context = context,
+                context = activity, // 👈 MUST be Activity here
                 request = request
             )
 
@@ -43,8 +44,7 @@ class GoogleAuthUiClient(
 
             if (
                 credential is CustomCredential &&
-                credential.type ==
-                GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
             ) {
 
                 val googleIdTokenCredential =
@@ -53,10 +53,7 @@ class GoogleAuthUiClient(
                 val googleIdToken = googleIdTokenCredential.idToken
 
                 val firebaseCredential =
-                    GoogleAuthProvider.getCredential(
-                        googleIdToken,
-                        null
-                    )
+                    GoogleAuthProvider.getCredential(googleIdToken, null)
 
                 val user = auth.signInWithCredential(firebaseCredential)
                     .await()
@@ -74,19 +71,17 @@ class GoogleAuthUiClient(
                 )
 
             } else {
-
                 SignInResult(
                     data = null,
-                    errorMessage = "credentials not valid"
+                    errorMessage = "Invalid credential type"
                 )
             }
 
-        } catch (e: androidx.credentials.exceptions.GetCredentialException) {
+        } catch (e: Exception) {
             e.printStackTrace()
-
-            return SignInResult(
+            SignInResult(
                 data = null,
-                errorMessage = "Sign in failed or canceled by user"
+                errorMessage = e.message ?: "Sign in failed"
             )
         }
     }

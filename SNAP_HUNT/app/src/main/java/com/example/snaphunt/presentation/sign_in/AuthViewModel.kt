@@ -1,5 +1,7 @@
 package com.example.snaphunt.presentation.sign_in
 
+import android.app.Activity
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snaphunt.data.repositories.authentication.AuthRepository
@@ -8,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
 class AuthViewModel(
     private val repo: AuthRepository,
     private val settingsRepository: SettingsRepository
@@ -17,11 +18,12 @@ class AuthViewModel(
     private val _state = MutableStateFlow(AuthUiState())
     val state = _state.asStateFlow()
 
-    fun onSignIn() {
+    fun onSignIn(activity: Activity) {
         viewModelScope.launch {
+
             _state.update { it.copy(isLoading = true, error = null) }
 
-            val result = repo.signIn()
+            val result = repo.signIn(activity)
 
             _state.update {
                 it.copy(
@@ -31,7 +33,8 @@ class AuthViewModel(
                     error = result.errorMessage
                 )
             }
-            result.data?.userId?.let { userId ->
+
+            result.data?.userId?.let {
                 settingsRepository.syncFromCloud()
             }
         }

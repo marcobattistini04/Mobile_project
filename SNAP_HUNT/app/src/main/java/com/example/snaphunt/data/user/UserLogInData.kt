@@ -2,6 +2,7 @@ package com.example.snaphunt.data.user
 
 import com.example.snaphunt.data.models.AppTheme
 import com.example.snaphunt.data.models.ColorPalette
+import com.google.firebase.firestore.FieldValue
 
 data class UserLogInData(
     val userId: String,
@@ -22,5 +23,5 @@ data class UserSettings(
 data class PhotoData(
     val id: String = "",
     val url: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: FieldValue = FieldValue.serverTimestamp()
 )

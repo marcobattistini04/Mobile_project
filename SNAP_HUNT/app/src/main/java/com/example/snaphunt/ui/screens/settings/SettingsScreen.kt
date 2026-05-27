@@ -49,13 +49,13 @@ fun SettingsScreen(navigationController: NavHostController, settingsState: Setti
             )
             RadioListItem(
                 label = "Yes, I want to receive notifications",
-                selected = settingsState.dynamicColor,
+                selected = settingsState.notification,
                 onClick = { settingsActions.setEnableNotifications(true)}
             )
 
             RadioListItem(
                 label = "No, do not send me notifications",
-                selected = !settingsState.dynamicColor,
+                selected = !settingsState.notification,
                 onClick = { settingsActions.setEnableNotifications(false)}
             )
 

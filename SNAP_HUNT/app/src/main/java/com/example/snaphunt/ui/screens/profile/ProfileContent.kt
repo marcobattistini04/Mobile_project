@@ -1,5 +1,6 @@
 package com.example.snaphunt.ui.screens.profile
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,7 +23,6 @@ import com.example.snaphunt.user_settings.SettingsState
 
 @Composable
 fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostController, themeState: SettingsState, themeActions: SettingsActions) {
-
     val state by authViewModel.state.collectAsState()
     val ctx = LocalContext.current
     LaunchedEffect(key1 = state.isSignInSuccessful) {
@@ -71,7 +71,8 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
                 state = state,
                 motivation = "view your profile screen",
                 onSignInClick = {
-                    authViewModel.onSignIn()
+                    val activity = ctx as Activity
+                    authViewModel.onSignIn(activity)
                 }
             )
         }

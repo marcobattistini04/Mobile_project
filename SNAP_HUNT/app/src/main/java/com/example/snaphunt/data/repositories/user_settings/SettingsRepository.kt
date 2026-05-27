@@ -11,6 +11,9 @@ import com.example.snaphunt.data.models.ColorPalette
 import com.example.snaphunt.data.models.AppTheme
 import com.example.snaphunt.data.user.UserSettings
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
@@ -20,6 +23,22 @@ class AuthManager(
     fun currentUserId(): String? {
         return firebaseAuth.currentUser?.uid
     }
+
+    fun authStateFlow(): Flow<String?> = callbackFlow {
+
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser?.uid)
+        }
+
+        firebaseAuth.addAuthStateListener(listener)
+
+        trySend(firebaseAuth.currentUser?.uid)
+
+        awaitClose {
+            firebaseAuth.removeAuthStateListener(listener)
+        }
+    }
+
 }
 
 class SettingsRepository(
