@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.ksp)
     id("com.google.gms.google-services")
 }
 
@@ -74,19 +75,25 @@ dependencies {
 
     implementation(libs.mpandroidchart)
 
-    //supabase
-    implementation("io.github.jan-tennert.supabase:auth-kt:3.6.0")
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:3.6.0")
-    implementation("io.github.jan-tennert.supabase:storage-kt:3.6.0")
+// Supabase e Storage per Immagini
+    implementation(libs.supabase.auth)
+    implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.storage) //upload/download delle immagini
 
-    implementation(platform("io.ktor:ktor-bom:3.5.0"))
-    implementation("io.ktor:ktor-client-core:3.5.0")
-    implementation("io.ktor:ktor-client-okhttp:3.5.0")
-    implementation("io.ktor:ktor-client-plugins:3.1.1")
-    implementation("io.ktor:ktor-client-content-negotiation:3.5.0")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:3.5.0")
+    // Ktor Network Client (Gestito in modo sicuro tramite BOM)
+    implementation(platform(libs.ktor.bom))
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.plugins)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
+    //Room Database per salvataggio locale
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler) // genera i codici Room
 
+    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
 }

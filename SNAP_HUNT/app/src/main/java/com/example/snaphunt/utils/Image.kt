@@ -11,17 +11,19 @@ import android.provider.MediaStore
 import java.io.FileNotFoundException
 
 fun uriToBitmap(imageUri: Uri, contentResolver: ContentResolver): Bitmap {
-    val bitmap = when {
-        Build.VERSION.SDK_INT < 28 -> {
-            @Suppress("DEPRECATION")
-            MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-        }
-        else -> {
-            val source = ImageDecoder.createSource(contentResolver, imageUri)
-            ImageDecoder.decodeBitmap(source)
+    return if (Build.VERSION.SDK_INT < 28) {
+        @Suppress("DEPRECATION")
+        MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
+    } else {
+        val source = ImageDecoder.createSource(contentResolver, imageUri)
+        ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+           //forza l'allocatore software per poter ridimensionare e manipolare la bitmap
+            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+
+            // permette di modificare i pixel se necessario in futuro
+            decoder.isMutableRequired = true
         }
     }
-    return bitmap
 }
 
 fun saveImageToStorage(

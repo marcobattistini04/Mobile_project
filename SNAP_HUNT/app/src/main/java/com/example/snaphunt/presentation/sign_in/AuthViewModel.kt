@@ -18,6 +18,12 @@ class AuthViewModel(
     private val _state = MutableStateFlow(AuthUiState())
     val state = _state.asStateFlow()
 
+    val isLoggedIn: Boolean
+        get() = state.value.user != null
+
+    val userId: String?
+        get() = state.value.user?.userId
+
     fun onSignIn(activity: Activity) {
         viewModelScope.launch {
 
