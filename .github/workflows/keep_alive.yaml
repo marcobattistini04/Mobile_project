@@ -1,0 +1,15 @@
+name: Ping Supabase
+
+on:
+  schedule:
+    # Esegue ogni lunedì alle 00:00
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Ping
+        run: |
+          curl -I -H "apikey: sb_publishable_z2spDn3i9gZl0aiytOETJw_Z0GflI2z" "https://rgfiyenbbbclsoaaoaqb.supabase.co/rest/v1/"
