@@ -46,7 +46,6 @@ fun ProfileHeader(
             .padding(16.dp)
     ) {
 
-        // TOP BAR
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -65,7 +64,6 @@ fun ProfileHeader(
             }
         }
 
-        // PROFILE INFO
         Row(
             modifier = Modifier
                 .fillMaxWidth()

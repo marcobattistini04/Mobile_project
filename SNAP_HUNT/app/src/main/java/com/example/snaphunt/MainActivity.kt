@@ -16,6 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.snaphunt.data.user.UserChallengeItem
+import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.screens.graphs.GraphScreen
 import com.example.snaphunt.ui.screens.home.HomeScreen
@@ -35,8 +37,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val authViewModel: AuthViewModel  = koinViewModel()
+            val authViewModel: AuthViewModel  = koinViewModel <AuthViewModel>()
             val settingsViewModel = koinViewModel <SettingsViewModel>()
+            val photoGalleryViewModel = koinViewModel < PhotoGalleryViewModel> ()
             val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
             DisposableEffect(lifecycleOwner) {
@@ -60,7 +63,7 @@ class MainActivity : ComponentActivity() {
                 dynamicColor = themeState.dynamicColor
             ) {
                 val navController = rememberNavController()
-                NavGraph(authViewModel, navController, themeState, settingsViewModel.actions)
+                NavGraph(authViewModel, photoGalleryViewModel, navController, themeState, settingsViewModel.actions)
             }
         }
     }
@@ -71,7 +74,7 @@ sealed interface SnapHuntRoute{
     @Serializable data object HomeScreen: SnapHuntRoute
     @Serializable data object ProfileScreen: SnapHuntRoute
     @Serializable data object PhotoGalleryScreen
-    @Serializable data class PhotoDetails(val travelId: String)
+    @Serializable data class PhotoDetails(val challengeId: String)
     @Serializable data object GraphScreen: SnapHuntRoute
     @Serializable data object SettingsScreen: SnapHuntRoute
 
@@ -80,7 +83,12 @@ sealed interface SnapHuntRoute{
 }
 
 @Composable
-fun NavGraph(authViewModel: AuthViewModel, navigationController: NavHostController, themeState: SettingsState, themeActions: SettingsActions) {
+fun NavGraph(
+    authViewModel: AuthViewModel,
+    photoGalleryViewModel: PhotoGalleryViewModel,
+    navigationController: NavHostController, themeState: SettingsState,
+    themeActions: SettingsActions
+) {
     NavHost(
         navController = navigationController,
         startDestination = SnapHuntRoute.HomeScreen
@@ -99,12 +107,12 @@ fun NavGraph(authViewModel: AuthViewModel, navigationController: NavHostControll
         }
 
         composable<SnapHuntRoute.PhotoGalleryScreen> {
-            PhotoGalleryScreen(authViewModel, navigationController)
+            PhotoGalleryScreen(authViewModel, photoGalleryViewModel,  navigationController)
         }
 
         composable<SnapHuntRoute.PhotoDetails> { backStackEntry ->
             val route = backStackEntry.toRoute<SnapHuntRoute.PhotoDetails>()
-            PhotoDetailsScreen(navigationController, route.travelId)
+            PhotoDetailsScreen(navigationController, photoGalleryViewModel, route.challengeId)
 
         }
 

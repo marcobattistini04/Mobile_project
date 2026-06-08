@@ -101,14 +101,21 @@ class GoogleAuthUiClient(
         supabase.auth.signOut()
     }
 
-    fun getSignedInUser(): UserLogInData? {
+    suspend fun getSignedInUser(): UserLogInData? {
         val user = supabase.auth.currentUserOrNull()
             ?: return null
 
+        val profile = supabase
+            .from("profiles")
+            .select {
+                filter { eq("user_id", user.id) }
+            }
+            .decodeSingleOrNull<ProfileRow>()
+
         return UserLogInData(
             userId = user.id,
-            username = user.userMetadata?.get("name")?.toString(),
-            profilePictureUri = user.userMetadata?.get("avatar_url")?.toString()
+            username = profile?.username ?: user.userMetadata?.get("name")?.toString(),
+            profilePictureUri = profile?.avatar_url ?: user.userMetadata?.get("avatar_url")?.toString()
         )
     }
 }

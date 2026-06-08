@@ -8,6 +8,7 @@ import com.example.snaphunt.data.repositories.authentication.AuthRepository
 import com.example.snaphunt.data.repositories.user_settings.SettingsCloudRepository
 import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
 import com.example.snaphunt.network.NetworkMonitor
+import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.photos.SyncManager
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
@@ -54,5 +55,6 @@ val appModule = module {
     single { get<AppDatabase>().pendingAttemptDao() }
 
     viewModel {PhotoSyncViewModel(get(), get(), get(), get())}
+    viewModel { PhotoGalleryViewModel(get(), get()) }
 
 }

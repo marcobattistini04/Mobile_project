@@ -1,8 +1,10 @@
 package com.example.snaphunt.ui.screens.photo_gallery
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,30 +22,42 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import com.example.snaphunt.R
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.components.AppBar
-import androidx.compose.ui.platform.LocalContext
 import com.example.snaphunt.SnapHuntRoute
+import com.example.snaphunt.data.user.UserChallengeItem
+import com.example.snaphunt.photos.PhotoGalleryViewModel
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toLocalDate
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun PhotoGalleryScreen(authViewModel: AuthViewModel, navigationController: NavHostController, ) {
-    val ctx = LocalContext.current
+fun PhotoGalleryScreen(authViewModel: AuthViewModel, galleryViewModel: PhotoGalleryViewModel, navigationController: NavHostController, ) {
     val state by authViewModel.state.collectAsState()
     val user = state.user
-    val items = (1..20).map {"Item n°$it"} //SOBSTITUTE WITH USER PHOTOS PULLED FROM SUPABASE
+    val photos by galleryViewModel.challengeState.collectAsState()
+
+    LaunchedEffect(user?.userId) {
+        user?.userId?.let { galleryViewModel.loadUserChallenges(it)}
+    }
+
     Scaffold(
-        topBar = { AppBar(title = "SnapHunt", navigationController) }
+        topBar = { AppBar(title = "Challenges Collection", navigationController) }
     ) {
             contentPadding ->
         LazyVerticalGrid(
@@ -57,16 +68,25 @@ fun PhotoGalleryScreen(authViewModel: AuthViewModel, navigationController: NavHo
             modifier = Modifier.padding(contentPadding)
 
         ) {
-            items(items) {item -> PhotoGalleryItem(item, navigationController)}
+            items(photos) {photo -> PhotoGalleryItem(photo, navigationController)}
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PhotoGalleryItem(item: String, navigationController: NavHostController) {
+fun PhotoGalleryItem(item: UserChallengeItem, navigationController: NavHostController) {
+    val formatterInput = DateTimeFormatter.ISO_DATE_TIME
+    val formatterOutput = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    val formattedDate = remember(item.createdAt) {
+        try {
+            ZonedDateTime.parse(item.createdAt, formatterInput).format(formatterOutput)
+
+        } catch (e: Exception) {}
+    }
+
     Card(
-        onClick = { navigationController.navigate(SnapHuntRoute.PhotoDetails(item)) },
+        onClick = { navigationController.navigate(SnapHuntRoute.PhotoDetails(item.id)) },
         modifier = Modifier
             .size(150.dp)
             .fillMaxWidth(),
@@ -74,30 +94,27 @@ fun PhotoGalleryItem(item: String, navigationController: NavHostController) {
             containerColor =  MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                Icons.Outlined.Image,
-                "Travel picture",
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(20.dp)
+        Box(modifier = Modifier.fillMaxSize()) {
+            Log.d("ImageDebug", "URL: ${item.storagePath}")
+            AsyncImage(
+                model = item.storagePath,
+                contentDescription = "Challenge Photo",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = R.drawable.ic_placeholder),
+                error = painterResource(id = R.drawable.ic_error)
             )
-            Spacer(Modifier.size(8.dp))
+
+
             Text(
-                item,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
+                text = formattedDate.toString(),
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(8.dp)
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .padding(4.dp),
+                color = Color.White,
+                style = MaterialTheme.typography.labelSmall
             )
         }
     }

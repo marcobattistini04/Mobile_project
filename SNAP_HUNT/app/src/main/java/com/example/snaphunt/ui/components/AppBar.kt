@@ -29,7 +29,7 @@ fun AppBar(title: String, navigationController: NavHostController) {
             )
         },
         actions = {
-            if (title != "Settings") {
+            if (title != "Settings" && title != "Challenges Collection" && title != "Challenge details") {
                 IconButton(onClick = {
                     navigationController.navigate(SnapHuntRoute.SettingsScreen) {
                         launchSingleTop = true
@@ -42,7 +42,7 @@ fun AppBar(title: String, navigationController: NavHostController) {
                     Icon(Icons.Outlined.Settings, "Settings")
                 }
             }
-            if(title != "Personal Space") {
+            if(title != "Personal Space" && title != "Challenges Collection" && title != "Challenge details") {
                 IconButton(onClick = {
                     navigationController.navigate(SnapHuntRoute.ProfileScreen) {
                         launchSingleTop = true
