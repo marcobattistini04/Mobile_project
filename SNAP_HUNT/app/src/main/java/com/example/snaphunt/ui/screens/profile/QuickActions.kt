@@ -1,6 +1,7 @@
 package com.example.snaphunt.ui.screens.profile
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,13 +23,14 @@ fun QuickActions(authViewModel: AuthViewModel,
                  themeState: SettingsState,
                  themeActions: SettingsActions) {
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        ActionButton("Show graphs", onClick = {navigationController.navigate(SnapHuntRoute.GraphScreen)})
+        ActionButton("Show stats", onClick = {navigationController.navigate(SnapHuntRoute.GraphScreen)})
+        ActionButton("SnapHunt collection!", onClick = {navigationController.navigate(SnapHuntRoute.PhotoGalleryScreen)})
         ActionButton("What are traits?", onClick = { })
     }
 

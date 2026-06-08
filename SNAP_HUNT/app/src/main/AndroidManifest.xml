@@ -42,6 +42,10 @@
                 android:resource="@xml/path_provider" />
         </provider>
 
+        <meta-data
+            android:name="android.content.AttributionSource"
+            android:value="true" />
+
     </application>
 
 </manifest>

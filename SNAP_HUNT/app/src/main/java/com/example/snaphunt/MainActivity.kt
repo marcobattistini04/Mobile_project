@@ -15,9 +15,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.screens.graphs.GraphScreen
 import com.example.snaphunt.ui.screens.home.HomeScreen
+import com.example.snaphunt.ui.screens.photo_gallery.PhotoDetailsScreen
+import com.example.snaphunt.ui.screens.photo_gallery.PhotoGalleryScreen
 import com.example.snaphunt.ui.screens.profile.ProfileScreen
 import com.example.snaphunt.ui.screens.settings.SettingsScreen
 import com.example.snaphunt.user_settings.SettingsActions
@@ -64,9 +67,12 @@ class MainActivity : ComponentActivity() {
 }
 
 sealed interface SnapHuntRoute{
-    @Serializable data object GraphScreen: SnapHuntRoute
+
     @Serializable data object HomeScreen: SnapHuntRoute
     @Serializable data object ProfileScreen: SnapHuntRoute
+    @Serializable data object PhotoGalleryScreen
+    @Serializable data class PhotoDetails(val travelId: String)
+    @Serializable data object GraphScreen: SnapHuntRoute
     @Serializable data object SettingsScreen: SnapHuntRoute
 
     //@Serializable data class SnapShotResultScreen(val traverId: String): SnapHuntRoute
@@ -80,10 +86,6 @@ fun NavGraph(authViewModel: AuthViewModel, navigationController: NavHostControll
         startDestination = SnapHuntRoute.HomeScreen
     ) {
 
-        composable<SnapHuntRoute.GraphScreen> {
-            GraphScreen(authViewModel, navigationController, themeState, themeActions)
-        }
-
         composable<SnapHuntRoute.HomeScreen> {
             HomeScreen(authViewModel, navigationController, themeState, themeActions)
         }
@@ -91,6 +93,21 @@ fun NavGraph(authViewModel: AuthViewModel, navigationController: NavHostControll
         composable<SnapHuntRoute.ProfileScreen> {
             ProfileScreen(authViewModel, navigationController, themeState, themeActions)
         }
+
+        composable<SnapHuntRoute.GraphScreen> {
+            GraphScreen(authViewModel, navigationController, themeState, themeActions)
+        }
+
+        composable<SnapHuntRoute.PhotoGalleryScreen> {
+            PhotoGalleryScreen(authViewModel, navigationController)
+        }
+
+        composable<SnapHuntRoute.PhotoDetails> { backStackEntry ->
+            val route = backStackEntry.toRoute<SnapHuntRoute.PhotoDetails>()
+            PhotoDetailsScreen(navigationController, route.travelId)
+
+        }
+
 
         composable<SnapHuntRoute.SettingsScreen> {
             SettingsScreen(navigationController, themeState, themeActions)
