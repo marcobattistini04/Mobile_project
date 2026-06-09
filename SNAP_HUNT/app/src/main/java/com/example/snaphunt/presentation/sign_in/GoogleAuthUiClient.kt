@@ -102,15 +102,19 @@ class GoogleAuthUiClient(
     }
 
     suspend fun getSignedInUser(): UserLogInData? {
-        val user = supabase.auth.currentUserOrNull()
-            ?: return null
+        val user = supabase.auth.currentUserOrNull() ?: return null
 
-        val profile = supabase
-            .from("profiles")
-            .select {
-                filter { eq("user_id", user.id) }
-            }
-            .decodeSingleOrNull<ProfileRow>()
+        val profile = try {
+            supabase
+                .from("profiles")
+                .select {
+                    filter { eq("user_id", user.id) }
+                }
+                .decodeSingleOrNull<ProfileRow>()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
 
         return UserLogInData(
             userId = user.id,

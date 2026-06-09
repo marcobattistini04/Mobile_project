@@ -22,36 +22,43 @@ class SettingsCloudRepository(
     private val supabase: SupabaseClient
 ) {
 
-    suspend fun upload(userId: String, settings: UserSettings) {
-        val row = UserSettingsRow(
-            user_id = userId,
-            notification_enabled = settings.notificationEnabled,
-            theme = settings.theme.name,
-            dynamic_color = settings.dynamicColor,
-            palette = settings.palette.name,
-            last_updated = settings.lastUpdated
-        )
+    suspend fun upload(userId: String, settings: UserSettings): Boolean {
+        return try {
+            val row = UserSettingsRow(
+                user_id = userId,
+                notification_enabled = settings.notificationEnabled,
+                theme = settings.theme.name,
+                dynamic_color = settings.dynamicColor,
+                palette = settings.palette.name,
+                last_updated = settings.lastUpdated
+            )
 
-        supabase.from("user_settings")
-            .upsert(row)
+            supabase.from("user_settings").upsert(row)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 
     suspend fun download(userId: String): UserSettings? {
-        val row = supabase.from("user_settings")
-            .select {
-                filter {
-                    eq("user_id", userId)
-                }
-            }
-            .decodeSingleOrNull<UserSettingsRow>()
-            ?: return null
+        return try {
+            val row = supabase.from("user_settings")
+                .select{ filter {eq("user_id", userId)  } }
+                .decodeSingleOrNull<UserSettingsRow>()
+                ?: return null
 
-        return UserSettings(
-            notificationEnabled = row.notification_enabled,
-            theme = AppTheme.valueOf(row.theme),
-            dynamicColor = row.dynamic_color,
-            palette = ColorPalette.valueOf(row.palette),
-            lastUpdated = row.last_updated
-        )
+            UserSettings(
+                notificationEnabled = row.notification_enabled,
+                theme = AppTheme.valueOf(row.theme),
+                dynamicColor = row.dynamic_color,
+                palette = ColorPalette.valueOf(row.palette),
+                lastUpdated = row.last_updated
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
+
 }

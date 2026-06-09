@@ -99,16 +99,16 @@ class SettingsRepository(
         )
     }
 
-    suspend fun syncToCloud() {
-        val userId = supabase.auth.sessionManager.loadSession()?.user?.id  ?: return
+    suspend fun syncToCloud(): Boolean {
+        val userId = supabase.auth.sessionManager.loadSession()?.user?.id  ?: return false
         val settings = getCurrentSettings()
 
-        cloud.upload(userId, settings)
+        return cloud.upload(userId, settings)
     }
 
-    suspend fun syncFromCloud() {
-        val userId = supabase.auth.sessionManager.loadSession()?.user?.id ?: return
-        val cloudSettings = cloud.download(userId) ?: return
+    suspend fun syncFromCloud() : Boolean{
+        val userId = supabase.auth.sessionManager.loadSession()?.user?.id ?: return false
+        val cloudSettings = cloud.download(userId) ?: return false
 
         dataStore.edit { prefs ->
             prefs[THEME_KEY] = cloudSettings.theme.name
@@ -117,6 +117,7 @@ class SettingsRepository(
             prefs[DYNAMIC_COLOR] = cloudSettings.dynamicColor
             prefs[LAST_UPDATED] = cloudSettings.lastUpdated
         }
+        return true
     }
 }
 

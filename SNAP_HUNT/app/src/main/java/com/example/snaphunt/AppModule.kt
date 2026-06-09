@@ -36,6 +36,7 @@ val appModule = module {
     viewModel {
         AuthViewModel(
             get(),
+            get(),
             get()
         )
 
@@ -55,6 +56,6 @@ val appModule = module {
     single { get<AppDatabase>().pendingAttemptDao() }
 
     viewModel {PhotoSyncViewModel(get(), get(), get(), get())}
-    viewModel { PhotoGalleryViewModel(get(), get()) }
+    viewModel { PhotoGalleryViewModel(get(), get(), get()) }
 
 }

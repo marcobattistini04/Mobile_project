@@ -4,7 +4,6 @@ data class PendingAttempt(
     val id: String,
     val challengeId: String,
     val challengeText: String,
-    val localImagePath: String,
     val localThumbnailPath: String,
     val createdAt: Long,
     val success: Boolean,

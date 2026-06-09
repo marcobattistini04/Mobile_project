@@ -19,7 +19,6 @@ import com.example.snaphunt.user_settings.SettingsState
 @Composable
 fun QuickActions(authViewModel: AuthViewModel,
                  navigationController: NavHostController,
-                 user: UserLogInData,
                  themeState: SettingsState,
                  themeActions: SettingsActions) {
 

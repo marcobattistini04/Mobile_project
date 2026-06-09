@@ -2,8 +2,10 @@ package com.example.snaphunt.photos
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.example.snaphunt.data.user.UserChallengeItem
+import com.example.snaphunt.network.NetworkMonitor
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,10 +14,13 @@ import kotlinx.coroutines.launch
 
 class PhotoGalleryViewModel(
     private val postgrest: Postgrest,
-    private val storage: Storage
+    private val storage: Storage,
+    private val networkMonitor: NetworkMonitor
 ): ViewModel() {
     private val _challengeState = MutableStateFlow<List<UserChallengeItem>>(emptyList())
     val challengeState = _challengeState.asStateFlow()
+
+    val isOnline = networkMonitor.isOnline
 
     private val _selectedChallenge = MutableStateFlow<UserChallengeItem?>(null)
     val selectedChallenge = _selectedChallenge.asStateFlow()
@@ -35,7 +40,7 @@ class PhotoGalleryViewModel(
 
                 _challengeState.value = updatedList
             } catch (e: Exception) {
-                Log.e("SupabaseDebug", "Errore: ${e.message}")
+                Log.e("SupabaseDebug", "Error: ${e.message}")
             }
         }
     }
@@ -51,7 +56,7 @@ class PhotoGalleryViewModel(
 
                 _selectedChallenge.value = item.copy(storagePath = url)
             } catch (e: Exception) {
-                Log.e("SupabaseDebug", "Errore: ${e.message}")
+                Log.e("SupabaseDebug", "Error: ${e.message}")
             }
         }
     }

@@ -6,17 +6,15 @@ import com.example.snaphunt.photos.PendingAttempt
 
 @Entity(tableName = "pending_attempts")
 data class PendingAttemptEntity(
-    @PrimaryKey val id: String,          // ID del tentativo (UUID generato nello scatto)
-    val challengeId: String,             // ID della sfida
-    val challengeText: String,           // Il testo della sfida (serve a Supabase/AI)
-    val localImagePath: String,          // Il percorso sul telefono (per ritrovare la foto)
-    val localThumbnailPath: String,       //percorso della miniatura leggera da caricare su supabase
-    val createdAt: Long,                 // Data dello scatto
-    val synced: Boolean = false,         // Flag di controllo per il sync Room
-
+    @PrimaryKey val id: String,          // ID of the attempt (generated)
+    val challengeId: String,             // ID of the challenge
+    val challengeText: String,           // the text of the challenge
+    val localThumbnailPath: String,       //path of the thumbnail to upload on Supabase
+    val createdAt: Long,                 // date of the photo
+    val synced: Boolean = false,         // control flag for Room sync
     val aiLabel: String? = null,
     val aiConfidence: Double? = null,
-    val success: Boolean = false         // Di default false, diventerà true se la sfida è superata
+    val success: Boolean = false         // default on false, true if the challenge is succeded
 )
 
 // Da Entity (Database) a Domain (App/UI)
@@ -25,7 +23,6 @@ fun PendingAttemptEntity.toDomain(): PendingAttempt {
         id = this.id,
         challengeId = this.challengeId,
         challengeText = this.challengeText,
-        localImagePath = this.localImagePath,
         localThumbnailPath = this.localThumbnailPath,
         createdAt = this.createdAt,
         success = this.success,
@@ -40,10 +37,9 @@ fun PendingAttempt.toEntity(): PendingAttemptEntity {
         id = this.id,
         challengeId = this.challengeId,
         challengeText = this.challengeText,
-        localImagePath = this.localImagePath,
         localThumbnailPath = this.localThumbnailPath,
         createdAt = this.createdAt,
-        synced = false, // Di default la nuova entità per il db room non è ancora sincronizzata
+        synced = false,
         success = this.success,
         aiLabel = this.aiLabel,
         aiConfidence = this.aiConfidence

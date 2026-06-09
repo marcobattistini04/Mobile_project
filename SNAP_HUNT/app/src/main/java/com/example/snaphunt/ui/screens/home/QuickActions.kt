@@ -69,32 +69,20 @@ fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeA
             }
 
             Button(onClick = {
-                // bitmap originale scattata
                 val originalBitmap = uriToBitmap(pictureUri, ctx.contentResolver)
-
-                // salvataggio dell'immagine originale sul telefono (per la UI locale)
-                val originalFile = imageStorageManager.saveLocalImage(originalBitmap, ctx)
-
-                // creazione della thumbnail
+                imageStorageManager.saveImageToGallery(originalBitmap, ctx)
                 val thumbnailBitmap = imageStorageManager.createThumbnail(originalBitmap, maxSize = 512)
-
-                // salvataggio thumbnail sul telefono (servirà per l'upload)
                 val thumbnailFile = imageStorageManager.saveLocalImage(thumbnailBitmap, ctx)
-
-                // tentativo con ENTRAMBI i percorsi
                 val attempt = PendingAttempt(
                     id = UUID.randomUUID().toString(),
                     challengeId = UUID.randomUUID().toString(),
                     challengeText = "Quick Snap Challenge",
-                    localImagePath = originalFile.absolutePath,       // Foto pesante
-                    localThumbnailPath = thumbnailFile.absolutePath,   // Foto leggera per il cloud
+                    localThumbnailPath = thumbnailFile.absolutePath,
                     createdAt = System.currentTimeMillis(),
                     success = false
                 )
 
-                // 6. Passiamo al ViewModel
                 viewModel.onPhotoTaken(attempt)
-
                 reset()
             }) {
                 Text("Save Picture")

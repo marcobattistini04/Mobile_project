@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snaphunt.data.repositories.authentication.AuthRepository
 import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
+import com.example.snaphunt.network.NetworkMonitor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 class AuthViewModel(
     private val repo: AuthRepository,
     private val settingsRepository: SettingsRepository,
+    private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuthUiState())
@@ -27,6 +29,16 @@ class AuthViewModel(
     init {
         viewModelScope.launch {
             restore()
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            networkMonitor.isOnline.collect { isOnline ->
+                if (isOnline) {
+                    refreshProfile()
+                }
+            }
         }
     }
 
@@ -61,9 +73,25 @@ class AuthViewModel(
         viewModelScope.launch {
             try {
                 settingsRepository.syncToCloud()
+            } catch (e: Exception) {
+                e.printStackTrace()
             } finally {
                 repo.signOut()
                 _state.value = AuthUiState()
+            }
+        }
+    }
+
+    private var isFetching = false
+    fun refreshProfile() {
+        if (isFetching) return
+        isFetching = true
+        viewModelScope.launch {
+            try {
+                val updatedUser = repo.getCurrentUser()
+                _state.update { it.copy(user = updatedUser) }
+            } finally {
+                isFetching = false
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.example.snaphunt.ui.screens.photo_gallery
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -51,9 +53,27 @@ fun PhotoGalleryScreen(authViewModel: AuthViewModel, galleryViewModel: PhotoGall
     val state by authViewModel.state.collectAsState()
     val user = state.user
     val photos by galleryViewModel.challengeState.collectAsState()
+    val isOnline by galleryViewModel.isOnline.collectAsState()
+    val ctx = LocalContext.current
 
-    LaunchedEffect(user?.userId) {
-        user?.userId?.let { galleryViewModel.loadUserChallenges(it)}
+    LaunchedEffect(user?.userId, isOnline) {
+        if(isOnline) {
+            user?.userId?.let { galleryViewModel.loadUserChallenges(it)}
+        }
+        if(photos.isEmpty() && isOnline) {
+            Toast.makeText(
+                ctx,
+                "no Photos to show. Take new Snaphunts to view them here!",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+        if (!isOnline) {
+            Toast.makeText(
+                ctx,
+                "Unable to load Photo Gallery",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     Scaffold(

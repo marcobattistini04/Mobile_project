@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.snaphunt.data.models.ColorPalette
 import com.example.snaphunt.data.models.AppTheme
 import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,6 +28,16 @@ data class SettingsActions(
 
 class SettingsViewModel(repo: SettingsRepository) : ViewModel() {
     private val repository = repo
+
+    private val _syncStatus = MutableStateFlow<SyncResult>(SyncResult.Idle)
+    val syncStatus = _syncStatus.asStateFlow()
+
+    sealed class SyncResult {
+        object Idle : SyncResult()
+        object Loading : SyncResult()
+        object Success : SyncResult()
+        data class Error(val message: String) : SyncResult()
+    }
     val state = combine(repository.notification, repository.theme, repository.palette, repository.dynamicColor) {notification, theme, palette, dynamicColor ->
         SettingsState(notification, theme, palette, dynamicColor)
     }
@@ -43,7 +55,13 @@ class SettingsViewModel(repo: SettingsRepository) : ViewModel() {
 
     fun demandSyncToCloud() {
         viewModelScope.launch {
-            repository.syncToCloud()
+            _syncStatus.value = SyncResult.Loading
+            val success = repository.syncToCloud()
+            if (success) {
+                _syncStatus.value = SyncResult.Success
+            } else {
+                _syncStatus.value = SyncResult.Error("Unable to synchronize")
+            }
         }
     }
 }

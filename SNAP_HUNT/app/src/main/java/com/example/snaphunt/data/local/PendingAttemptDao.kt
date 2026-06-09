@@ -44,7 +44,9 @@ object DatabaseProvider {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "snap_hunt_db"
-            ).build()
+            )
+                .fallbackToDestructiveMigration() // avoid crashes if the database change between app uploads
+                .build()
 
             INSTANCE = instance
             instance

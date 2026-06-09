@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.components.AppBar
@@ -23,10 +24,12 @@ import com.example.snaphunt.user_settings.SettingsState
 
 @Composable
 fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostController, themeState: SettingsState, themeActions: SettingsActions) {
-    val state by authViewModel.state.collectAsState()
+    val state by authViewModel.state.collectAsStateWithLifecycle()
     val ctx = LocalContext.current
+    var alreadyShown = false
     LaunchedEffect(key1 = state.isSignInSuccessful) {
-        if (state.isSignInSuccessful) {
+        if (state.isSignInSuccessful && !alreadyShown) {
+            alreadyShown = true
             Toast.makeText(
                 ctx,
                 "Sign In successful",
@@ -49,7 +52,6 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
                 item {
                     ProfileHeader(
                         authViewModel,
-                        user,
                         themeState,
                         themeActions
                     )
@@ -59,7 +61,6 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
                     QuickActions(
                         authViewModel,
                         navigationController,
-                        user,
                         themeState,
                         themeActions
                     )
