@@ -25,7 +25,6 @@ class SyncManager(
 
             val storagePath = "users/$userId/thumbs/${attempt.id}.jpg"
 
-            // 1. Eseguiamo l'upload dello Storage
             storage.from("challenge-images").upload(
                 path = storagePath,
                 data = file.readBytes()
@@ -33,7 +32,6 @@ class SyncManager(
                 upsert = true
             }
 
-            // 2. Eseguiamo l'inserimento nel Database Postgrest
             db.from("challenge_results").insert(
                 buildJsonObject {
                     put("id", attempt.id)
@@ -47,11 +45,11 @@ class SyncManager(
                 }
             )
 
-            println("[DEBUG_DB] ✅ Codice insert eseguito senza eccezioni crash!!!!")
+            println("[DEBUG_DB] Code insert executed without crash!!!!")
             true
 
         } catch (e: Exception) {
-            println("[DEBUG_DB] ❌ ERRORE RISCONTRATO DURANTE IL SYNC!!!!: ${e.localizedMessage}")
+            println("[DEBUG_DB] ERROR encountered during SYNC from db!!!!: ${e.localizedMessage}")
             e.printStackTrace()
             false
         }

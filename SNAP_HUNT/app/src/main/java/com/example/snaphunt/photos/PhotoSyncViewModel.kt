@@ -52,14 +52,14 @@ class PhotoSyncViewModel(
 
     fun onPhotoTaken(attempt: PendingAttempt) {
         viewModelScope.launch {
-            println("=== [DEBUG_SNAP] FUNZIONE AVVIATA ===")
+            println("[DEBUG_SNAP] function initialized")
             val session = auth.currentSessionOrNull()
-            println("[DEBUG_SNAP] Sessione recuperata: $session")
+            println("[DEBUG_SNAP] session recovered: $session")
             val userId = auth.currentSessionOrNull()?.user?.id
-            println("[DEBUG_SNAP] User ID estratto: $userId")
+            println("[DEBUG_SNAP] User ID extracted: $userId")
 
             if (userId == null) {
-                println("[DEBUG_SNAP] STOP: l'userId è NULL! Entro in modalità DEMO ed esco.")
+                println("[DEBUG_SNAP] STOP: userId is NULL! Entering in DEMO modality and exit.")
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     val thumbFile = File(attempt.localThumbnailPath)
                     if (thumbFile.exists()) thumbFile.delete()
@@ -67,26 +67,26 @@ class PhotoSyncViewModel(
                 return@launch
             }
 
-            println("[DEBUG_SNAP] Utente Loggato. Controllo lo stato della rete...")
-            println("[DEBUG_SNAP] Rete Online? = ${isOnline.value}")
+            println("[DEBUG_SNAP] User logged in. Checking network state...")
+            println("[DEBUG_SNAP] Network online? = ${isOnline.value}")
 
-            println("[DEBUG_SNAP] Avvio syncManager.syncAttempt()...")
-            val successo = syncManager.syncAttempt(attempt, userId)
-            println("[DEBUG_SNAP] Risultato del sync = $successo")
+            println("[DEBUG_SNAP] syncAttempt()...")
+            val success = syncManager.syncAttempt(attempt, userId)
+            println("[DEBUG_SNAP] sync result = $success")
 
-            if (successo) {
-                println("[DEBUG_SNAP] SUCCESS: Upload completato. Cancello la miniatura.")
+            if (success) {
+                println("[DEBUG_SNAP] SUCCESS: Upload completed. Deleting thumbnail.")
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     val thumbFile = File(attempt.localThumbnailPath)
                     if (thumbFile.exists()) thumbFile.delete()
                 }
             } else {
-                println("[DEBUG_SNAP] FALLIMENTO: Il sync ha restituito false. Salvo in Room.")
+                println("[DEBUG_SNAP] FAILURE: sync returned false. Saving in Room.")
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     pendingAttemptDao.insert(attempt.toEntity().copy(synced = false))
                 }
             }
-            println("=== [DEBUG_SNAP] FUNZIONE TERMINATA ===")
+            println("[DEBUG_SNAP] function terminated")
         }
     }
 }

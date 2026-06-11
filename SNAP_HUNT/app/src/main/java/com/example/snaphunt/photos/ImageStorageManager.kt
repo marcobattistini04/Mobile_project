@@ -22,7 +22,7 @@ class ImageStorageManager {
         val file = File(directory, "img_${UUID.randomUUID()}.jpg")
 
         FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out) // 80% è il compromesso perfetto spazio/qualità
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)
         }
 
         return file
@@ -36,7 +36,7 @@ class ImageStorageManager {
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/NomeTuaApp")
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/SnapHunt")
                 put(MediaStore.Images.Media.IS_PENDING, 1)
             }
         }
@@ -74,10 +74,5 @@ class ImageStorageManager {
         }
 
         return bitmap.scale(w, h)
-    }
-
-    //funzione di utilità per eliminare i file locali una volta sincronizzati
-    fun fileFromPath(path: String): File {
-        return File(path)
     }
 }

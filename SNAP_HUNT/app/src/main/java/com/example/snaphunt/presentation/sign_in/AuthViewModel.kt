@@ -6,10 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.example.snaphunt.data.repositories.authentication.AuthRepository
 import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
 import com.example.snaphunt.network.NetworkMonitor
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+sealed interface SignInEvent {
+    data object SignInSuccess : SignInEvent
+}
+
 
 class AuthViewModel(
     private val repo: AuthRepository,
@@ -19,6 +26,9 @@ class AuthViewModel(
 
     private val _state = MutableStateFlow(AuthUiState())
     val state = _state.asStateFlow()
+
+    private val _events = MutableSharedFlow<SignInEvent>()
+    val events = _events.asSharedFlow()
 
     val isLoggedIn: Boolean
         get() = state.value.user != null
@@ -59,8 +69,15 @@ class AuthViewModel(
             }
 
             result.data?.userId?.let {
+                onSignInSuccess()
                 settingsRepository.syncFromCloud()
             }
+        }
+    }
+
+    fun onSignInSuccess() {
+        viewModelScope.launch {
+            _events.emit(SignInEvent.SignInSuccess)
         }
     }
 
