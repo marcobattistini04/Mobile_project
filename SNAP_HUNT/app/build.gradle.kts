@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.AaptOptions
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -40,6 +42,10 @@ android {
     buildFeatures {
         compose = true
     }
+
+    androidResources {
+       noCompress += "tflite"
+    }
 }
 
 dependencies {
@@ -76,7 +82,7 @@ dependencies {
 
     implementation(libs.mpandroidchart)
 
-// Supabase e Storage per Immagini
+    // Supabase e Storage per Immagini
     implementation(libs.supabase.auth)
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.storage) //upload/download delle immagini
@@ -96,5 +102,8 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    //MediaPipe e riconoscimento immagine
+    implementation(libs.tasks.vision)
 
 }

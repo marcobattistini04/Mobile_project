@@ -23,6 +23,7 @@ lifecycleViewmodelCompose = "2.10.0"
 mpandroidchart = "v3.1.0"
 navigationCompose = "2.9.7"
 playServicesAuth = "21.5.1"
+tasksVision = "latest.release"
 uiGraphics = "1.10.5"
 material3 = "1.4.0"
 media3Exoplayer = "1.10.0"
@@ -89,6 +90,7 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
+tasks-vision = { module = "com.google.mediapipe:tasks-vision", version.ref = "tasksVision" }
 
 
 [plugins]
