@@ -1,12 +1,15 @@
 package com.example.snaphunt
 
 import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.snaphunt.data.local.AppDatabase
 import com.example.snaphunt.data.local.DatabaseProvider.getDatabase
 import com.example.snaphunt.data.repositories.authentication.AuthRepository
 import com.example.snaphunt.data.repositories.user_settings.SettingsCloudRepository
 import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
+import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
+import com.example.snaphunt.image_recognition.ObjectDetector
 import com.example.snaphunt.network.NetworkMonitor
 import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
@@ -57,5 +60,9 @@ val appModule = module {
 
     viewModel {PhotoSyncViewModel(get(), get(), get(), get())}
     viewModel { PhotoGalleryViewModel(get(), get(), get()) }
+
+    single { ObjectDetector(androidContext()) }
+
+    viewModel { ObjectDetectionViewModel(get()) }
 
 }

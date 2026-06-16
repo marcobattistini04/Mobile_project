@@ -1,14 +1,15 @@
 package com.example.snaphunt.utils
 
 import android.content.ContentResolver
-import android.content.ContentValues
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.ImageDecoder
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
-import android.os.SystemClock
 import android.provider.MediaStore
-import java.io.FileNotFoundException
+import androidx.core.graphics.createBitmap
 
 fun uriToBitmap(imageUri: Uri, contentResolver: ContentResolver): Bitmap {
     return if (Build.VERSION.SDK_INT < 28) {
@@ -17,33 +18,34 @@ fun uriToBitmap(imageUri: Uri, contentResolver: ContentResolver): Bitmap {
     } else {
         val source = ImageDecoder.createSource(contentResolver, imageUri)
         ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
-           //forza l'allocatore software per poter ridimensionare e manipolare la bitmap
             decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
 
-            // permette di modificare i pixel se necessario in futuro
             decoder.isMutableRequired = true
         }
     }
 }
 
-fun saveImageToStorage(
-    imageUri: Uri,
-    contentResolver: ContentResolver,
-    name: String = "IMG_${SystemClock.uptimeMillis()}"
-): Uri {
-    val bitmap = uriToBitmap(imageUri, contentResolver)
+fun prepareBitmapForModel(originalBitmap: Bitmap, targetSize: Int = 448): Bitmap {
+    val outputBitmap = createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(outputBitmap)
 
-    val values = ContentValues()
-    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-    values.put(MediaStore.Images.Media.DISPLAY_NAME, name)
+    canvas.drawColor(Color.BLACK)
 
-    val savedImageUri =
-        contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-    val outputStream = savedImageUri?.let { contentResolver.openOutputStream(it) }
-        ?: throw FileNotFoundException()
+    val scale = targetSize.toFloat() / maxOf(originalBitmap.width, originalBitmap.height)
+    val scaledWidth = (originalBitmap.width * scale).toInt()
+    val scaledHeight = (originalBitmap.height * scale).toInt()
 
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-    outputStream.close()
+    val left = (targetSize - scaledWidth) / 2f
+    val top = (targetSize - scaledHeight) / 2f
 
-    return savedImageUri
+    val targetRect = Rect(left.toInt(), top.toInt(), left.toInt() + scaledWidth, top.toInt() + scaledHeight)
+
+    val paint = android.graphics.Paint().apply {
+        isFilterBitmap = true
+        isAntiAlias = true
+    }
+
+    canvas.drawBitmap(originalBitmap, null, targetRect, paint)
+
+    return outputBitmap
 }
