@@ -23,7 +23,6 @@ lifecycleViewmodelCompose = "2.10.0"
 mpandroidchart = "v3.1.0"
 navigationCompose = "2.9.7"
 playServicesAuth = "21.5.1"
-tasksVision = "latest.release"
 uiGraphics = "1.10.5"
 material3 = "1.4.0"
 media3Exoplayer = "1.10.0"
@@ -36,6 +35,9 @@ supabase = "3.0.2"
 room = "2.6.1"
 ksp = "2.0.21-1.0.26"
 runtime = "1.11.2"
+
+mediapipeTasks = "latest.release"
+
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
@@ -90,8 +92,8 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
-tasks-vision = { module = "com.google.mediapipe:tasks-vision", version.ref = "tasksVision" }
 
+mediapipe-tasks-vision = { group = "com.google.mediapipe", name = "tasks-vision", version.ref = "mediapipeTasks" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -25,7 +25,7 @@ class ObjectDetector(
             .setBaseOptions(baseOptions)
             .setRunningMode(RunningMode.IMAGE)
             .setMaxResults(5)
-            .setScoreThreshold(0.3f)
+            .setScoreThreshold(0.5f)
             .build()
 
         objectDetector = ObjectDetector.createFromOptions(context, options)

@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.runtime)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -104,6 +105,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     //MediaPipe e riconoscimento immagine
-    implementation(libs.tasks.vision)
 
+    // Librerie MediaPipe
+    implementation(libs.mediapipe.tasks.vision)
 }
