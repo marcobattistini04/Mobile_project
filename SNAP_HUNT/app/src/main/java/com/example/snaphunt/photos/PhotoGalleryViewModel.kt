@@ -34,8 +34,13 @@ class PhotoGalleryViewModel(
                     }.decodeList<UserChallengeItem>()
 
                 val updatedList = rawList.map { item ->
-                    val url = storage.from("challenge-images").publicUrl(item.storagePath)
-                    item.copy(storagePath = url)
+                    val validUrl = if (!item.storagePath.isNullOrBlank()) {
+                        storage.from("challenge-images").publicUrl(item.storagePath)
+                    } else {
+                        null
+                    }
+
+                    item.copy(storagePath = validUrl ?: item.storagePath)
                 }
 
                 _challengeState.value = updatedList
@@ -52,9 +57,13 @@ class PhotoGalleryViewModel(
                     .select { filter { eq("id", id) } }
                     .decodeSingle<UserChallengeItem>()
 
-                val url = storage.from("challenge-images").publicUrl(item.storagePath)
+                val validUrl = if (!item.storagePath.isNullOrBlank()) {
+                    storage.from("challenge-images").publicUrl(item.storagePath)
+                } else {
+                    null
+                }
 
-                _selectedChallenge.value = item.copy(storagePath = url)
+                _selectedChallenge.value = item.copy(storagePath = validUrl ?: item.storagePath)
             } catch (e: Exception) {
                 Log.e("SupabaseDebug", "Error: ${e.message}")
             }

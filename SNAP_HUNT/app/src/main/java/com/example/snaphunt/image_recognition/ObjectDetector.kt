@@ -24,7 +24,7 @@ class ObjectDetector(
         val options = ObjectDetector.ObjectDetectorOptions.builder()
             .setBaseOptions(baseOptions)
             .setRunningMode(RunningMode.IMAGE)
-            .setMaxResults(5)
+            .setMaxResults(6)
             .setScoreThreshold(0.5f)
             .build()
 

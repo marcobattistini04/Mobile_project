@@ -83,15 +83,28 @@ fun PhotoDetailsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(contentPadding).padding(16.dp).fillMaxSize()
             ) {
-                AsyncImage(
-                    model = item.storagePath,
-                    contentDescription = "Challenge Photo",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .clip(MaterialTheme.shapes.medium),
-                    contentScale = ContentScale.Crop
-                )
+                if (!item.storagePath.isNullOrBlank() && item.storagePath.startsWith("http")) {
+                    AsyncImage(
+                        model = item.storagePath,
+                        contentDescription = "Challenge Photo",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .clip(MaterialTheme.shapes.medium),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No photo available", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
 
                 Text(
                     text = item.challengeText,
@@ -101,15 +114,28 @@ fun PhotoDetailsScreen(
                     text = "Created at: $formattedDate",
                     style = MaterialTheme.typography.bodySmall
                 )
-                Text(
-                    text = "AI Confidence: ${(item.aiConfidence * 100).toInt()}%",
+                Text (
+                    text = "Ai label: ${item.aiLabel ?: "Not analized"}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "State: ${if (item.success) "Succeded" else "Failed"}",
+                    text = "AI Confidence: ${item.aiConfidence?.let { (it * 100).toInt().toString() + "%" } ?: "Not Analized"}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "State: ${if (item.success) "Success" else "Failed"}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (item.success) Color.Green else Color.Red
                 )
+                Text(
+                    text = "Points Earned: ${(item.points)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = "Additional Objects Found: ${(item.additionalObjects)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
             }
         }
     }

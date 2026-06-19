@@ -20,17 +20,24 @@ class SyncManager(
         if (!networkMonitor.isOnline.value) return false
 
         return try {
-            val file = File(attempt.localThumbnailPath)
-            if (!file.exists()) return false
 
-            val storagePath = "users/$userId/thumbs/${attempt.id}.jpg"
+            var storagePath: String? = null
 
-            storage.from("challenge-images").upload(
-                path = storagePath,
-                data = file.readBytes()
-            ) {
-                upsert = true
+            if(attempt.localThumbnailPath != null) {
+                val file = File(attempt.localThumbnailPath)
+                if (!file.exists()) return false
+
+                storagePath = "users/$userId/thumbs/${attempt.id}.jpg"
+
+                storage.from("challenge-images").upload(
+                    path = storagePath,
+                    data = file.readBytes()
+                ) {
+                    upsert = true
+                }
             }
+
+
 
             db.from("challenge_results").insert(
                 buildJsonObject {
@@ -39,9 +46,12 @@ class SyncManager(
                     put("challenge_id", attempt.challengeId)
                     put("challenge_text", attempt.challengeText)
                     put("storage_path", storagePath)
-                    put("ai_label", attempt.aiLabel ?: "pending")
-                    put("ai_confidence", attempt.aiConfidence ?: 0.0)
+                    put("ai_label", attempt.aiLabel)
+                    put("ai_confidence", attempt.aiConfidence)
                     put("success", attempt.success)
+                    put("skipped", attempt.skipped)
+                    put("points", attempt.points)
+                    put("additional_objects", attempt.additionalObjects)
                 }
             )
 

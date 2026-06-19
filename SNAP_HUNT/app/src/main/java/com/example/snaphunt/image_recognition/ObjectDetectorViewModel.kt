@@ -9,11 +9,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.String
 
+data class DetectionResults(
+    val aiLabel: String = "",
+    val aiConfidence: Double = 0.0,
+    val success: Boolean = false,
+    val points: Int = 0,
+    val additionalObjects: Int = 0
+)
 class ObjectDetectionViewModel(private val detector: ObjectDetector) : ViewModel() {
 
-    private val _detectionResults = MutableStateFlow<ObjectDetectorResult?>(null)
+    private val _detectionResults = MutableStateFlow<DetectionResults?>(null)
     val detectionResults = _detectionResults.asStateFlow()
+
+    private val _rawDetectionResult = MutableStateFlow<ObjectDetectorResult?>(null)
+    val rawDetectionResult = _rawDetectionResult.asStateFlow()
+
     fun detect(bitmap: Bitmap): ObjectDetectorResult? {
         return detector.detect(bitmap)
     }
@@ -23,19 +35,64 @@ class ObjectDetectionViewModel(private val detector: ObjectDetector) : ViewModel
         detector.close()
     }
 
-    fun processImage(bitmap: Bitmap) {
+    fun processImage(bitmap: Bitmap, challenge: DailyObjects) {
         viewModelScope.launch(Dispatchers.Default) {
             val preparedBitMap = prepareBitmapForModel(bitmap)
             try {
                 val results = detect(preparedBitMap)
-                _detectionResults.value = results
+                processResults(challenge, results!!)
             } finally {
                 preparedBitMap.recycle()
             }
         }
     }
 
+    private fun processResults(
+        challenge: DailyObjects,
+        modelResults: ObjectDetectorResult
+    ) {
+
+        val match = modelResults.detections().find { detection ->
+            detection.categories().any {
+                it.categoryName().equals(challenge.keyword, ignoreCase = true)
+            }
+        }
+
+        val success = match != null
+        var aiLabel = ""
+        var aiConfidence = 0.0
+        var points = 0
+        var additionalObjects = 0
+
+        if (success) {
+            val bestCategory = match.categories().maxByOrNull { it.score() }
+            aiLabel = bestCategory?.categoryName() ?: "unknown"
+            aiConfidence = bestCategory?.score()?.toDouble() ?: 0.0
+
+            val totalObjects = modelResults.detections().size
+            additionalObjects = (totalObjects - 1).coerceAtLeast(0)
+
+            val basePoints = 50.0
+            val confidenceBonus = aiConfidence * 20.0
+            val extraObjectsBonus = additionalObjects * 10.0
+
+            points = (basePoints + confidenceBonus + extraObjectsBonus).toInt()
+        }
+
+        val attempt = DetectionResults(
+            aiLabel = aiLabel,
+            aiConfidence = aiConfidence,
+            success = success,
+            points = points,
+            additionalObjects = additionalObjects
+        )
+
+        _rawDetectionResult.value = modelResults
+        _detectionResults.value = attempt
+    }
+
     fun clearResults() {
         _detectionResults.value = null
+        _rawDetectionResult.value = null
     }
 }

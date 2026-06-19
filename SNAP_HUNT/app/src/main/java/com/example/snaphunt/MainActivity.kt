@@ -1,6 +1,7 @@
 package com.example.snaphunt
 
 import android.os.Bundle
+import org.koin.androidx.compose.KoinAndroidContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -37,33 +38,35 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val authViewModel: AuthViewModel  = koinViewModel <AuthViewModel>()
-            val settingsViewModel = koinViewModel <SettingsViewModel>()
-            val photoGalleryViewModel = koinViewModel < PhotoGalleryViewModel> ()
-            val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            KoinAndroidContext {
+                val authViewModel: AuthViewModel  = koinViewModel <AuthViewModel>()
+                val settingsViewModel: SettingsViewModel = koinViewModel <SettingsViewModel>()
+                val photoGalleryViewModel: PhotoGalleryViewModel = koinViewModel < PhotoGalleryViewModel> ()
+                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
-            DisposableEffect(lifecycleOwner) {
-                val observer = LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        settingsViewModel.demandSyncToCloud()
+                DisposableEffect(lifecycleOwner) {
+                    val observer = LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_STOP) {
+                            settingsViewModel.demandSyncToCloud()
+                        }
+                    }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    onDispose {
+                        lifecycleOwner.lifecycle.removeObserver(observer)
                     }
                 }
-                lifecycleOwner.lifecycle.addObserver(observer)
-                onDispose {
-                    lifecycleOwner.lifecycle.removeObserver(observer)
+                LaunchedEffect(Unit) {
+                    authViewModel.restore()
                 }
-            }
-            LaunchedEffect(Unit) {
-                authViewModel.restore()
-            }
-            val themeState by settingsViewModel.state.collectAsStateWithLifecycle()
-            SnapHuntTheme(
-                theme = themeState.theme,
-                palette = themeState.palette,
-                dynamicColor = themeState.dynamicColor
-            ) {
-                val navController = rememberNavController()
-                NavGraph(authViewModel, photoGalleryViewModel, navController, themeState, settingsViewModel.actions)
+                val themeState by settingsViewModel.state.collectAsStateWithLifecycle()
+                SnapHuntTheme(
+                    theme = themeState.theme,
+                    palette = themeState.palette,
+                    dynamicColor = themeState.dynamicColor
+                ) {
+                    val navController = rememberNavController()
+                    NavGraph(authViewModel, photoGalleryViewModel, navController, themeState, settingsViewModel.actions)
+                }
             }
         }
     }

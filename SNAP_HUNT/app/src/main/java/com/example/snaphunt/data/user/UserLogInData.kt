@@ -30,15 +30,21 @@ data class UserChallengeItem(
     @SerialName("challenge_text")
     val challengeText: String,
     @SerialName("storage_path")
-    val storagePath: String,
+    val storagePath: String? = null,
     @SerialName("ai_label")
-    val aiLabel: String,
+    val aiLabel: String? = null,
     @SerialName("ai_confidence")
-    val aiConfidence: Float,
+    val aiConfidence: Float? = null,
     @SerialName("success")
     val success: Boolean,
+    @SerialName("skipped")
+    val skipped: Boolean,
     @SerialName("created_at")
     val createdAt: String,
     @SerialName("challenge_id")
-    val challengeId: String
+    val challengeId: String,
+    @SerialName("points")
+    val points: Int,
+    @SerialName("additional_objects")
+    val additionalObjects: Int
 )
