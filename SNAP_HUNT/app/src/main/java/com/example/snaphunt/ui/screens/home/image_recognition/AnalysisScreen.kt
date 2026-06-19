@@ -52,7 +52,8 @@ fun AnalysisScreen(
     val viewModel: ObjectDetectionViewModel = koinViewModel <ObjectDetectionViewModel>()
     val photoSyncViewModel: PhotoSyncViewModel = koinViewModel<PhotoSyncViewModel>()
     val authViewModel: AuthViewModel = koinViewModel<AuthViewModel>()
-    val userState = authViewModel.userId
+    val userState by authViewModel.state.collectAsState()
+    val user = userState.user
     val results by viewModel.detectionResults.collectAsState()
     val rawResults by viewModel.rawDetectionResult.collectAsState()
     val loading = photoSyncViewModel.isProcessing.collectAsState()
@@ -128,7 +129,7 @@ fun AnalysisScreen(
                     //EVENTUALLY IF THE CHALLENGE IS LOST THE UPLOAD COULD BE AUTOMATIC AND NOT LINKED TO A BUTTON
                     // IN ORDER TO AVOID SMART USERS :)
 
-                    if(userState != null) {
+                    if(user != null) {
                         Button(
                             onClick = {
                                 onAnalysisFinished(summary)
