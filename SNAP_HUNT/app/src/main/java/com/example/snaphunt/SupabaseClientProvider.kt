@@ -11,7 +11,9 @@ fun provideSupabaseClient(): SupabaseClient {
         supabaseUrl = "https://rgfiyenbbbclsoaaoaqb.supabase.co",
         supabaseKey = "sb_publishable_z2spDn3i9gZl0aiytOETJw_Z0GflI2z"
     ) {
-        install(Auth)
+        install(Auth) {
+            alwaysAutoRefresh
+        }
         install(Postgrest)
         install(Storage)
     }
