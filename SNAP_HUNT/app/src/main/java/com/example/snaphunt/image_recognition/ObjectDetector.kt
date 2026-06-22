@@ -18,7 +18,7 @@ class ObjectDetector(
     init {
         val baseOptions = BaseOptions.builder()
             .setModelAssetPath(modelPath)
-            .setDelegate(Delegate.GPU)
+            .setDelegate(Delegate.CPU)
             .build()
 
         val options = ObjectDetector.ObjectDetectorOptions.builder()

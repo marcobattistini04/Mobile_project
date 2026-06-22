@@ -37,7 +37,7 @@ room = "2.6.1"
 ksp = "2.0.21-1.0.26"
 runtime = "1.11.2"
 
-mediapipeTasks = "latest.release"
+mediapipeTasks = "0.10.14"
 
 
 [libraries]
