@@ -8,8 +8,10 @@ import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
 import com.example.snaphunt.network.NetworkMonitor
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -24,66 +26,43 @@ class AuthViewModel(
     private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(AuthUiState())
-    val state = _state.asStateFlow()
+    private val _uiState = MutableStateFlow(AuthUiState())
+
+    val state = combine(repo.currentUser, _uiState) { user, uiState ->
+        uiState.copy(user = user, isInitializing = false)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AuthUiState(isInitializing = true))
 
     private val _events = MutableSharedFlow<SignInEvent>()
     val events = _events.asSharedFlow()
 
-    val isLoggedIn: Boolean
-        get() = state.value.user != null
-
-    val userId: String?
-        get() = state.value.user?.userId
-
     init {
         viewModelScope.launch {
-            restore()
-        }
-    }
-
-    init {
-        viewModelScope.launch {
+            repo.refreshUser()
             networkMonitor.isOnline.collect { isOnline ->
-                if (isOnline) {
-                    refreshProfile()
-                }
+                if (isOnline) repo.refreshUser()
             }
         }
     }
 
     fun onSignIn(activity: Activity) {
         viewModelScope.launch {
-
-            _state.update { it.copy(isLoading = true, error = null) }
+            _uiState.update { it.copy(isLoading = true, error = null) }
 
             val result = repo.signIn(activity)
 
-            _state.update {
+            _uiState.update {
                 it.copy(
                     isLoading = false,
                     isSignInSuccessful = result.data != null,
-                    user = result.data,
                     error = result.errorMessage
                 )
             }
 
-            result.data?.userId?.let {
-                onSignInSuccess()
+            if (result.data != null) {
+                _events.emit(SignInEvent.SignInSuccess)
                 settingsRepository.syncFromCloud()
             }
         }
-    }
-
-    fun onSignInSuccess() {
-        viewModelScope.launch {
-            _events.emit(SignInEvent.SignInSuccess)
-        }
-    }
-
-    suspend fun restore() {
-        val user = repo.getCurrentUser()
-        _state.update { it.copy(user = user) }
     }
 
     fun signOut() {
@@ -94,21 +73,6 @@ class AuthViewModel(
                 e.printStackTrace()
             } finally {
                 repo.signOut()
-                _state.value = AuthUiState()
-            }
-        }
-    }
-
-    private var isFetching = false
-    fun refreshProfile() {
-        if (isFetching) return
-        isFetching = true
-        viewModelScope.launch {
-            try {
-                val updatedUser = repo.getCurrentUser()
-                _state.update { it.copy(user = updatedUser) }
-            } finally {
-                isFetching = false
             }
         }
     }

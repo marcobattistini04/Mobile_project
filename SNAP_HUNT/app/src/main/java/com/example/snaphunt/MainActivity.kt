@@ -55,9 +55,6 @@ class MainActivity : ComponentActivity() {
                         lifecycleOwner.lifecycle.removeObserver(observer)
                     }
                 }
-                LaunchedEffect(Unit) {
-                    authViewModel.restore()
-                }
                 val themeState by settingsViewModel.state.collectAsStateWithLifecycle()
                 SnapHuntTheme(
                     theme = themeState.theme,

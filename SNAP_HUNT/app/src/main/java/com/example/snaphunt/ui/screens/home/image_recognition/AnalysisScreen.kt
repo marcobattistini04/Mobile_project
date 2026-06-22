@@ -28,8 +28,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.snaphunt.image_recognition.DailyObjects
 import com.example.snaphunt.image_recognition.DetectionResults
@@ -52,7 +54,7 @@ fun AnalysisScreen(
     val viewModel: ObjectDetectionViewModel = koinViewModel <ObjectDetectionViewModel>()
     val photoSyncViewModel: PhotoSyncViewModel = koinViewModel<PhotoSyncViewModel>()
     val authViewModel: AuthViewModel = koinViewModel<AuthViewModel>()
-    val userState by authViewModel.state.collectAsState()
+    val userState by authViewModel.state.collectAsStateWithLifecycle()
     val user = userState.user
     val results by viewModel.detectionResults.collectAsState()
     val rawResults by viewModel.rawDetectionResult.collectAsState()
@@ -129,25 +131,32 @@ fun AnalysisScreen(
                     //EVENTUALLY IF THE CHALLENGE IS LOST THE UPLOAD COULD BE AUTOMATIC AND NOT LINKED TO A BUTTON
                     // IN ORDER TO AVOID SMART USERS :)
 
-                    if(user != null) {
-                        Button(
-                            onClick = {
-                                onAnalysisFinished(summary)
-                            },
-                            enabled = savingButtonEnabled.value,
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-                        ) {
-                            if (loading.value) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    color = Color.White,
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Text("Save and Complete Challenge")
+                    if(userState.isInitializing) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    } else {
+                        if(userState.user != null) {
+                            Button(
+                                onClick = {
+                                    onAnalysisFinished(summary)
+                                },
+                                enabled = savingButtonEnabled.value,
+                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                            ) {
+                                if (loading.value) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Text("Save and Complete Challenge")
+                                }
                             }
+                        } else {
+                            Text("Login to save your progress", color = Color.Gray)
                         }
                     }
+
                 }
             }
         }
