@@ -68,7 +68,7 @@ fun PhotoDetailsScreen(
             } catch (e: Exception) {}
         }
         Scaffold(
-            topBar = { AppBar(title = "Challenge details", navigationController) },
+            topBar = { AppBar(isNavigationEnabled = true, title = "Challenge details", navigationController) },
             floatingActionButton = {
                 FloatingActionButton(
                     containerColor = MaterialTheme.colorScheme.tertiary,

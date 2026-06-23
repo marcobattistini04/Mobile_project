@@ -26,7 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
@@ -39,23 +38,20 @@ import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.utils.uriToBitmap
-import io.github.jan.supabase.auth.Auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AnalysisScreen(
+    viewModel: ObjectDetectionViewModel,
+    photoSyncViewModel: PhotoSyncViewModel,
+    authViewModel: AuthViewModel,
     pictureUri: Uri,
     challenge: DailyObjects,
     onAnalysisFinished: (DetectionResults) -> Unit,
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
 ) {
-    val viewModel: ObjectDetectionViewModel = koinViewModel <ObjectDetectionViewModel>()
-    val photoSyncViewModel: PhotoSyncViewModel = koinViewModel<PhotoSyncViewModel>()
-    val authViewModel: AuthViewModel = koinViewModel<AuthViewModel>()
     val userState by authViewModel.state.collectAsStateWithLifecycle()
-    val user = userState.user
     val results by viewModel.detectionResults.collectAsState()
     val rawResults by viewModel.rawDetectionResult.collectAsState()
     val loading = photoSyncViewModel.isProcessing.collectAsState()

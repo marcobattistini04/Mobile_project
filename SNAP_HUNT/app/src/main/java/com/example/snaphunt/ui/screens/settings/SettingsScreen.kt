@@ -30,7 +30,7 @@ import com.example.snaphunt.user_settings.SettingsState
 @Composable
 fun SettingsScreen(navigationController: NavHostController, settingsState: SettingsState, settingsActions: SettingsActions) {
     Scaffold(
-        topBar = { AppBar(title = "Settings", navigationController) }
+        topBar = { AppBar(isNavigationEnabled = true, title = "Settings", navigationController) }
     ) { contentPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

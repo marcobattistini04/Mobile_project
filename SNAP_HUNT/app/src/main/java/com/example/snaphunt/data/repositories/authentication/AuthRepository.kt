@@ -6,8 +6,11 @@ import com.example.snaphunt.data.user.UserLogInData
 import com.example.snaphunt.presentation.sign_in.GoogleAuthUiClient
 import com.example.snaphunt.presentation.sign_in.SignInResult
 import io.github.jan.supabase.SupabaseClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class AuthRepository(
     private val context: Context,
@@ -17,6 +20,12 @@ class AuthRepository(
 
     private val _currentUser = MutableStateFlow<UserLogInData?>(null)
     val currentUser = _currentUser.asStateFlow()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            _currentUser.value = googleAuthUiClient.getSignedInUser()
+        }
+    }
 
     suspend fun signIn(activity: Activity): SignInResult {
         val result = googleAuthUiClient.signIn(activity)

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.presentation.sign_in.SignInEvent
 import com.example.snaphunt.ui.components.AppBar
@@ -22,8 +24,16 @@ import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
 
 @Composable
-fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostController, themeState: SettingsState, themeActions: SettingsActions) {
+fun ProfileContent(
+    authViewModel: AuthViewModel,
+    photoGalleryViewModel: PhotoGalleryViewModel,
+    navigationController: NavHostController,
+    themeState: SettingsState,
+    themeActions: SettingsActions
+) {
     val state by authViewModel.state.collectAsStateWithLifecycle()
+    val isOnline by photoGalleryViewModel.isOnline.collectAsState()
+    val stats by photoGalleryViewModel.stats.collectAsState()
     val ctx = LocalContext.current
     LaunchedEffect(Unit) {
         authViewModel.events.collect { event ->
@@ -39,10 +49,24 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
         }
     }
 
+
+    LaunchedEffect(state.user?.userId, isOnline) {
+        if(isOnline) {
+            state.user?.userId?.let { photoGalleryViewModel.loadUserChallenges(it)}
+        }
+        if (!isOnline) {
+            Toast.makeText(
+                ctx,
+                "Unable to sync User traits",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     val user = state.user
 
     Scaffold(
-        topBar = { AppBar(title = "Personal Space", navigationController) }
+        topBar = { AppBar(isNavigationEnabled = true, title = "Personal Space", navigationController) }
     ) { contentPadding ->
 
         if (user != null) {
@@ -57,7 +81,7 @@ fun ProfileContent(authViewModel: AuthViewModel, navigationController: NavHostCo
                         themeActions
                     )
                 }
-                item { AboutUser(user, themeState, themeActions) }
+                item { AboutUser(user, stats, themeState, themeActions) }
                 item {
                     QuickActions(
                         authViewModel,

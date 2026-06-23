@@ -37,7 +37,11 @@ class AuthViewModel(
 
     init {
         viewModelScope.launch {
-            repo.refreshUser()
+            val session = repo.getCurrentUser()
+            if (session != null) {
+                repo.refreshUser()
+            }
+
             networkMonitor.isOnline.collect { isOnline ->
                 if (isOnline) repo.refreshUser()
             }

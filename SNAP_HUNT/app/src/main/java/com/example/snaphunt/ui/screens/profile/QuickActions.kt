@@ -13,6 +13,7 @@ import com.example.snaphunt.SnapHuntRoute
 import com.example.snaphunt.data.user.UserLogInData
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.components.ActionButton
+import com.example.snaphunt.ui.components.ExpandableSection
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
 
@@ -28,9 +29,14 @@ fun QuickActions(authViewModel: AuthViewModel,
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
+        ExpandableSection("What are traits?",
+            "• User achievements\n" +
+                "• Clear representation of your SnapHunt progress\n" +
+                "• They are dynamic and can be earned or lost at any moment\n" +
+                "• Show them to your friends!"
+        )
         ActionButton("Show stats", onClick = {navigationController.navigate(SnapHuntRoute.GraphScreen)})
         ActionButton("SnapHunt collection!", onClick = {navigationController.navigate(SnapHuntRoute.PhotoGalleryScreen)})
-        ActionButton("What are traits?", onClick = { })
     }
 
 }

@@ -21,6 +21,17 @@ data class UserSettings(
     constructor() : this(true, AppTheme.System, true, ColorPalette.Default, 0L)
 }
 
+data class UserStats(
+    val totalChallenges: Int = 0,
+    val wonChallenges: Int = 0,
+    val lostChallenges: Int = 0,
+    val skippedChallenges: Int = 0,
+    val totalPoints: Int = 0,
+    val totalAdditionalObjects: Int = 0,
+    val meanAIConfidenceOnSuccess: Float = 0.0f,
+    val meanAIConfidenceOnTotal: Float = 0.0f
+    )
+
 @Serializable
 data class UserChallengeItem(
     @SerialName("id")
