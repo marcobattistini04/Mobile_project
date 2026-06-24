@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -17,19 +19,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.components.AppBar
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
 
 @Composable
-fun GraphScreen(authViewModel: AuthViewModel, navigationController: NavHostController, themeState: SettingsState, themeActions: SettingsActions) {
+fun GraphScreen(
+    authViewModel: AuthViewModel,
+    photoGalleryViewModel: PhotoGalleryViewModel,
+    navigationController: NavHostController,
+    themeState: SettingsState,
+    themeActions: SettingsActions
+) {
     val ctx = LocalContext.current
     val state by authViewModel.state.collectAsState()
+    val stats by photoGalleryViewModel.stats.collectAsState()
+    val isOnline by photoGalleryViewModel.isOnline.collectAsState()
     val user = state.user
 
+    LaunchedEffect(state.user?.userId, isOnline) {
+        if(isOnline) {
+            state.user?.userId?.let { photoGalleryViewModel.loadUserChallenges(it)}
+        }
+        if (!isOnline) {
+            Toast.makeText(
+                ctx,
+                "Unable to sync User stats",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     Scaffold(
-        topBar = { AppBar(title = "${user!!.username} Stats", navigationController) }
+        topBar = { AppBar(isNavigationEnabled = true, title = "${user!!.username} Stats", navigationController) }
     ) { contentPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -37,6 +61,14 @@ fun GraphScreen(authViewModel: AuthViewModel, navigationController: NavHostContr
                 rememberScrollState()
             )
         ) {
+            Text("Total Challenges: ${stats.totalChallenges}")
+            Text("Challenges won: ${stats.wonChallenges}")
+            Text("Challenges lost: ${stats.lostChallenges}")
+            Text("Challenges skipped: ${stats.skippedChallenges}")
+            Text("Total Points earned: ${stats.totalPoints}")
+            Text("Total Additional Objects found: ${stats.totalAdditionalObjects}")
+            Text("Ai Model average confidence on total challenges: ${stats.meanAIConfidenceOnTotal}")
+            Text("Ai Model average confidence on won challenges: ${stats.meanAIConfidenceOnSuccess}")
             val data = listOf(
                 "OK" to 73f,
                 "NOT OK" to 27f

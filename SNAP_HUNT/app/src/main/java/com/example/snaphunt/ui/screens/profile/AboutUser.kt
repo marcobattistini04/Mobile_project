@@ -9,23 +9,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.snaphunt.data.user.UserLogInData
+import com.example.snaphunt.data.user.UserStats
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
 
 @Composable
-fun AboutUser(userLogInData: UserLogInData, themeState: SettingsState, themeActions: SettingsActions) {
+fun AboutUser(userLogInData: UserLogInData, stats: UserStats, themeState: SettingsState, themeActions: SettingsActions) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(
-            text = "PlaceHolder. Here will be visualized the user's traits.",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = "If there is no active profile, the user will se 'create profile and start taking snaps in order to see your stats'",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Text("Total Challenges: ${stats.totalChallenges}")
+        Text("Challenges won: ${stats.wonChallenges}")
+        Text("Challenges lost: ${stats.lostChallenges}")
+        Text("Challenges skipped: ${stats.skippedChallenges}")
+        Text("Total Points earned: ${stats.totalPoints}")
+        Text("Total Additional Objects found: ${stats.totalAdditionalObjects}")
+        Text("Ai Model average confidence on total challenges: ${stats.meanAIConfidenceOnTotal}")
+        Text("Ai Model average confidence on won challenges: ${stats.meanAIConfidenceOnSuccess}")
     }
 }

@@ -1,9 +1,11 @@
 package com.example.snaphunt.ui.screens.home
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -18,9 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import coil.compose.AsyncImage
+import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
 import com.example.snaphunt.photos.ImageStorageManager
 import com.example.snaphunt.photos.PendingAttempt
 import com.example.snaphunt.photos.PhotoSyncViewModel
@@ -29,21 +34,32 @@ import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.screens.home.image_recognition.AnalysisScreen
 import com.example.snaphunt.utils.uriToBitmap
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.androidx.compose.koinViewModel
 import java.util.UUID
 
 @Composable
-fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeActions: SettingsActions) {
+fun QuickActions(
+    objectDetectionViewModel: ObjectDetectionViewModel,
+    photoSyncViewModel: PhotoSyncViewModel,
+    authViewModel: AuthViewModel,
+    themeState: SettingsState,
+    themeActions: SettingsActions
+) {
     val ctx = LocalContext.current
     val imageStorageManager =  ImageStorageManager()
-    val viewModel: PhotoSyncViewModel = koinViewModel()
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by photoSyncViewModel.uiState.collectAsState()
 
     val scope = rememberCoroutineScope()
 
     val (pictureUri, takePicture, reset) = rememberCameraLauncher()
+
+    var cameraInterrupted by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = uiState is ScreenState.CameraActive && pictureUri != null) {
+        Toast.makeText(ctx, "Cannot interrupt a challenge before it's completed!", Toast.LENGTH_SHORT).show()
+    }
 
     when(val state = uiState) {
         is ScreenState.Idle -> {
@@ -53,7 +69,7 @@ fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeA
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = {viewModel.startNewChallenge()}) {
+                Button(onClick = {photoSyncViewModel.startNewChallenge()}) {
                     Text("New SnapHunt!")
                 }
             }
@@ -63,10 +79,10 @@ fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeA
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("New Mission: Find a... ${state.challenge.keyword} !!")
                 Row {
-                    Button(onClick = { viewModel.rejectChallenge(state.challenge) }) {
+                    Button(onClick = { photoSyncViewModel.rejectChallenge(state.challenge) }) {
                         Text("Refuse..")
                     }
-                    Button(onClick = { viewModel.acceptChallenge(state.challenge) }) {
+                    Button(onClick = { photoSyncViewModel.acceptChallenge(state.challenge) }) {
                         Text("Accept!")
                     }
                 }
@@ -74,11 +90,32 @@ fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeA
         }
 
         is ScreenState.CameraActive -> {
-            LaunchedEffect(Unit) {
-                takePicture()
+            LaunchedEffect(pictureUri) {
+                delay(800)
+                if (pictureUri == null && !cameraInterrupted) {
+                    cameraInterrupted = true
+                }
             }
-            if(pictureUri != null) {
+            if (cameraInterrupted) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("PhotoCamera Closed. Click here to continue the SnapHunt!")
+                    Button(onClick = {
+                        cameraInterrupted = false
+                        takePicture()
+                    }) {
+                        Text("New SnapHunt")
+                    }
+                }
+            }
+            else if(pictureUri != null) {
                 AnalysisScreen(
+                    viewModel = objectDetectionViewModel,
+                    photoSyncViewModel =  photoSyncViewModel,
+                    authViewModel = authViewModel,
                     pictureUri,
                     state.challenge,
                     onAnalysisFinished = { results ->
@@ -99,7 +136,7 @@ fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeA
                                 points = results.points,
                                 additionalObjects = results.additionalObjects
                             )
-                            viewModel.onPhotoTaken(attempt)
+                            photoSyncViewModel.onPhotoTaken(attempt)
                             withContext(Dispatchers.Main) {
                                 val message = if (results.success) "Challenge Completed! Points:: ${results.points}" else "Object not found."
                                 Toast.makeText(ctx, message, Toast.LENGTH_LONG).show()
@@ -114,7 +151,7 @@ fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeA
                 ) {
                     Button(onClick = {
                         reset()
-                        viewModel.resetToIdle()
+                        photoSyncViewModel.resetToIdle()
                     }) {
                         Text("Do not Save Picture")
                     }
@@ -129,7 +166,7 @@ fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeA
                                     Toast.makeText(ctx, "Errore durante il salvataggio", Toast.LENGTH_SHORT).show()
                                 }
                                 reset()
-                                viewModel.resetToIdle()
+                                photoSyncViewModel.resetToIdle()
                             }
                         }
 
@@ -137,9 +174,15 @@ fun QuickActions(authViewModel: AuthViewModel, themeState: SettingsState, themeA
                         Text("Save Picture")
                     }
                 }
+            } else {
+                LaunchedEffect(Unit) {
+                    if (!cameraInterrupted) {
+                        takePicture()
+                    }
+                }
             }
-        }
 
+        }
     }
 
 }

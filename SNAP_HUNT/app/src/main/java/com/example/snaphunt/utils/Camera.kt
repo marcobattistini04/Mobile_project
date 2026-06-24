@@ -1,5 +1,6 @@
 package com.example.snaphunt.utils
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,7 +26,7 @@ fun rememberCameraLauncher(): Triple<Uri?, () -> Unit, () -> Unit> {
 
     val ctx = LocalContext.current
     val takePicture = {
-        val file = File.createTempFile("tmp_img", ".jpg", ctx.externalCacheDir)
+        val file = File.createTempFile("snaphunt_tmp", ".jpg", ctx.externalCacheDir)
         launcherUri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", file)
         launcher.launch(launcherUri!!)
     }

@@ -12,7 +12,9 @@ fun provideSupabaseClient(): SupabaseClient {
         supabaseKey = "sb_publishable_z2spDn3i9gZl0aiytOETJw_Z0GflI2z"
     ) {
         install(Auth) {
-            alwaysAutoRefresh
+            alwaysAutoRefresh = true
+            autoSaveToStorage = true
+            autoLoadFromStorage = true
         }
         install(Postgrest)
         install(Storage)

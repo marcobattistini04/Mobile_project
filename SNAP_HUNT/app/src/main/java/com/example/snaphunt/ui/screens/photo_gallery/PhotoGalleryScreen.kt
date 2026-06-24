@@ -77,7 +77,7 @@ fun PhotoGalleryScreen(authViewModel: AuthViewModel, galleryViewModel: PhotoGall
     }
 
     Scaffold(
-        topBar = { AppBar(title = "Challenges Collection", navigationController) }
+        topBar = { AppBar(isNavigationEnabled = true, title = "Challenges Collection", navigationController) }
     ) {
             contentPadding ->
         LazyVerticalGrid(

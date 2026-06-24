@@ -19,8 +19,7 @@ import com.example.snaphunt.SnapHuntRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(title: String, navigationController: NavHostController) {
-    val currentDestination = navigationController.currentBackStackEntry?.destination?.route
+fun AppBar(isNavigationEnabled: Boolean = true, title: String, navigationController: NavHostController) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -29,7 +28,7 @@ fun AppBar(title: String, navigationController: NavHostController) {
             )
         },
         actions = {
-            if (title != "Settings" && title != "Challenges Collection" && title != "Challenge details") {
+            if (isNavigationEnabled && title != "Settings" && title != "Challenges Collection" && title != "Challenge details") {
                 IconButton(onClick = {
                     navigationController.navigate(SnapHuntRoute.SettingsScreen) {
                         launchSingleTop = true
@@ -42,7 +41,7 @@ fun AppBar(title: String, navigationController: NavHostController) {
                     Icon(Icons.Outlined.Settings, "Settings")
                 }
             }
-            if(title != "Personal Space" && title != "Challenges Collection" && title != "Challenge details") {
+            if( isNavigationEnabled && title != "Personal Space" && title != "Challenges Collection" && title != "Challenge details") {
                 IconButton(onClick = {
                     navigationController.navigate(SnapHuntRoute.ProfileScreen) {
                         launchSingleTop = true

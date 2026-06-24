@@ -5,20 +5,28 @@ import org.koin.androidx.compose.KoinAndroidContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.snaphunt.data.user.UserChallengeItem
+import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
 import com.example.snaphunt.photos.PhotoGalleryViewModel
+import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.screens.graphs.GraphScreen
 import com.example.snaphunt.ui.screens.home.HomeScreen
@@ -30,19 +38,30 @@ import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
 import com.example.snaphunt.user_settings.SettingsViewModel
 import com.example.snaphunt.ui.theme.SnapHuntTheme
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.koin.android.ext.android.getKoin
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val supabase = getKoin().get<SupabaseClient>()
+        lifecycleScope.launch {
+            supabase.auth.loadFromStorage()
+        }
         setContent {
             KoinAndroidContext {
+                val objectDetectionViewModel: ObjectDetectionViewModel = koinViewModel<ObjectDetectionViewModel>()
+                val photoSyncViewModel: PhotoSyncViewModel = koinViewModel<PhotoSyncViewModel>()
                 val authViewModel: AuthViewModel  = koinViewModel <AuthViewModel>()
                 val settingsViewModel: SettingsViewModel = koinViewModel <SettingsViewModel>()
                 val photoGalleryViewModel: PhotoGalleryViewModel = koinViewModel < PhotoGalleryViewModel> ()
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                val authState by authViewModel.state.collectAsStateWithLifecycle()
 
                 DisposableEffect(lifecycleOwner) {
                     val observer = LifecycleEventObserver { _, event ->
@@ -62,7 +81,21 @@ class MainActivity : ComponentActivity() {
                     dynamicColor = themeState.dynamicColor
                 ) {
                     val navController = rememberNavController()
-                    NavGraph(authViewModel, photoGalleryViewModel, navController, themeState, settingsViewModel.actions)
+                    if(authState.isInitializing) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        NavGraph(
+                            authViewModel,
+                            photoGalleryViewModel,
+                            photoSyncViewModel,
+                            objectDetectionViewModel,
+                            navController,
+                            themeState,
+                            settingsViewModel.actions
+                        )
+                    }
                 }
             }
         }
@@ -86,6 +119,8 @@ sealed interface SnapHuntRoute{
 fun NavGraph(
     authViewModel: AuthViewModel,
     photoGalleryViewModel: PhotoGalleryViewModel,
+    photoSyncViewModel: PhotoSyncViewModel,
+    objectDetectionViewModel: ObjectDetectionViewModel,
     navigationController: NavHostController, themeState: SettingsState,
     themeActions: SettingsActions
 ) {
@@ -95,15 +130,15 @@ fun NavGraph(
     ) {
 
         composable<SnapHuntRoute.HomeScreen> {
-            HomeScreen(authViewModel, navigationController, themeState, themeActions)
+            HomeScreen(objectDetectionViewModel, photoSyncViewModel, authViewModel, navigationController, themeState, themeActions)
         }
 
         composable<SnapHuntRoute.ProfileScreen> {
-            ProfileScreen(authViewModel, navigationController, themeState, themeActions)
+            ProfileScreen(authViewModel, photoGalleryViewModel, navigationController, themeState, themeActions)
         }
 
         composable<SnapHuntRoute.GraphScreen> {
-            GraphScreen(authViewModel, navigationController, themeState, themeActions)
+            GraphScreen(authViewModel, photoGalleryViewModel, navigationController, themeState, themeActions)
         }
 
         composable<SnapHuntRoute.PhotoGalleryScreen> {
@@ -115,7 +150,6 @@ fun NavGraph(
             PhotoDetailsScreen(navigationController, photoGalleryViewModel, route.challengeId)
 
         }
-
 
         composable<SnapHuntRoute.SettingsScreen> {
             SettingsScreen(navigationController, themeState, themeActions)
