@@ -15,9 +15,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+enum class ChallengeFilter {
+    ALL, COMPLETED, SKIPPED
+}
 
 class PhotoGalleryViewModel(
     private val postgrest: Postgrest,
@@ -31,6 +36,33 @@ class PhotoGalleryViewModel(
 
     private val _selectedChallenge = MutableStateFlow<UserChallengeItem?>(null)
     val selectedChallenge = _selectedChallenge.asStateFlow()
+
+
+    private val _currentFilter = MutableStateFlow(ChallengeFilter.ALL)
+    val currentFilter = _currentFilter.asStateFlow()
+
+    private val _isSortByPoints = MutableStateFlow(false)
+    val isSortByPoints = _isSortByPoints.asStateFlow()
+
+    val filteredPhotos: StateFlow<List<UserChallengeItem>> = combine(
+        _challengeState,
+        _currentFilter,
+        _isSortByPoints
+    ) { photos, filter, isPoints ->
+
+        val filtered = when (filter) {
+            ChallengeFilter.ALL -> photos
+            ChallengeFilter.COMPLETED -> photos.filter {!it.skipped }
+            ChallengeFilter.SKIPPED -> photos.filter { it.skipped }
+        }
+
+        if (isPoints) filtered.sortedByDescending { it.points }
+        else filtered.sortedByDescending { it.createdAt }
+
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun updateFilter(filter: ChallengeFilter) { _currentFilter.value = filter }
+    fun toggleSort() { _isSortByPoints.value = !_isSortByPoints.value }
 
     fun loadUserChallenges(userId: String) {
         viewModelScope.launch {
