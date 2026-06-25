@@ -33,6 +33,7 @@ import com.example.snaphunt.ui.components.AppBar
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
 import androidx.compose.foundation.layout.size
+import com.example.snaphunt.graphs.GraphsViewModel
 
 @Composable
 fun GraphScreen(

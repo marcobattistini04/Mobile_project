@@ -1,4 +1,4 @@
-package com.example.snaphunt.ui.screens.graphs
+package com.example.snaphunt.graphs
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -44,6 +44,7 @@ class GraphsViewModel : ViewModel() {
                         }
                     }
                 } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
             giorniMappa.toList()
