@@ -40,13 +40,21 @@ fun GraphScreen(
     photoGalleryViewModel: PhotoGalleryViewModel,
     navigationController: NavHostController,
     themeState: SettingsState,
-    themeActions: SettingsActions
+    themeActions: SettingsActions,
+    graphsViewModel: GraphsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val ctx = LocalContext.current
     val state by authViewModel.state.collectAsState()
     val stats by photoGalleryViewModel.stats.collectAsState()
     val isOnline by photoGalleryViewModel.isOnline.collectAsState()
+    val rawChallenges by photoGalleryViewModel.challengeState.collectAsState()
     val user = state.user
+
+    val puntiDellaSettimana by graphsViewModel.weeklyPoints.collectAsState()
+
+    LaunchedEffect(rawChallenges) {
+        graphsViewModel.updateChallenges(rawChallenges)
+    }
 
     LaunchedEffect(state.user?.userId, isOnline) {
         if (isOnline) {
@@ -163,10 +171,25 @@ fun GraphScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Weekly activity",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .padding(top = 12.dp, bottom = 12.dp)
+                    .align(Alignment.Start)
+            )
+
+            StatsLineChart(
+                points = puntiDellaSettimana,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+            )
         }
     }
 }
-
 
 @Composable
 fun StatBox(label: String, value: String, modifier: Modifier = Modifier) {
