@@ -16,6 +16,7 @@ import com.example.snaphunt.ui.components.ActionButton
 import com.example.snaphunt.ui.components.ExpandableSection
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
+import androidx.compose.foundation.layout.offset
 
 @Composable
 fun QuickActions(authViewModel: AuthViewModel,
@@ -26,8 +27,9 @@ fun QuickActions(authViewModel: AuthViewModel,
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceEvenly
+            .padding(12.dp)
+            .offset(y = (-60).dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         ExpandableSection("What are traits?",
             "• User achievements\n" +
@@ -38,5 +40,4 @@ fun QuickActions(authViewModel: AuthViewModel,
         ActionButton("Show stats", onClick = {navigationController.navigate(SnapHuntRoute.GraphScreen)})
         ActionButton("SnapHunt collection!", onClick = {navigationController.navigate(SnapHuntRoute.PhotoGalleryScreen)})
     }
-
 }

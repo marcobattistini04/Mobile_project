@@ -33,6 +33,7 @@ fun ProfileContent(
 ) {
     val state by authViewModel.state.collectAsStateWithLifecycle()
     val isOnline by photoGalleryViewModel.isOnline.collectAsState()
+    val allPhotos by photoGalleryViewModel.challengeState.collectAsState()
     val stats by photoGalleryViewModel.stats.collectAsState()
     val ctx = LocalContext.current
     LaunchedEffect(Unit) {
@@ -81,7 +82,15 @@ fun ProfileContent(
                         themeActions
                     )
                 }
-                item { AboutUser(user, stats, themeState, themeActions) }
+                item {
+                    AboutUser(
+                        userLogInData = user,
+                        stats = stats,
+                        photos = allPhotos,
+                        themeState = themeState,
+                        themeActions = themeActions
+                    )
+                }
                 item {
                     QuickActions(
                         authViewModel,
