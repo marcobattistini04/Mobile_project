@@ -1,5 +1,8 @@
 package com.example.snaphunt.ui.screens.profile
 
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +33,7 @@ import coil.compose.AsyncImage
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
+import androidx.compose.material3.LinearProgressIndicator
 
 @Composable
 fun ProfileHeader(
@@ -67,7 +70,14 @@ fun ProfileHeader(
                 fontWeight = FontWeight.SemiBold
             )
 
-            Button(onClick = { authViewModel.signOut() }) {
+            OutlinedButton(
+                onClick = { authViewModel.signOut() },
+                border = BorderStroke(1.dp, Color.Black),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
+            ) {
                 Text("Sign out")
             }
         }
@@ -126,14 +136,16 @@ fun ProfileHeader(
         // FUTURE SECTION PLACEHOLDER
         Spacer(modifier = Modifier.height(12.dp))
         val progress = if (totalCount > 0) unlockedCount.toFloat() / totalCount else 0f
-        androidx.compose.material3.LinearProgressIndicator(
+        LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(CircleShape),
-            color = Color(0xFF00875A),
+            color = Color(0xFFF2531B),
             trackColor = Color(0xFFE5E5E5)
         )
+        Spacer(modifier = Modifier.height(10.dp))
+
     }
 }
