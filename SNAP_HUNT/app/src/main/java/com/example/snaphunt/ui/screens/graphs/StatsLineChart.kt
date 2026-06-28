@@ -107,7 +107,7 @@ fun StatsLineChart(
 
             drawPath(
                 path = linePath,
-                color = Color(0xFF2196F3),
+                color = Color(0xFFF2531B),
                 style = Stroke(width = 6f, cap = StrokeCap.Round)
             )
 
@@ -118,7 +118,7 @@ fun StatsLineChart(
                     center = centerOffset
                 )
                 drawCircle(
-                    color = Color(0xFF2196F3),
+                    color = Color(0xFF444141),
                     radius = 6f,
                     center = centerOffset
                 )

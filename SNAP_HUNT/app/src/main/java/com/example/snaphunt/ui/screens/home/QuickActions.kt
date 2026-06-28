@@ -5,8 +5,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
@@ -38,6 +40,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun QuickActions(
@@ -69,7 +73,13 @@ fun QuickActions(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = {photoSyncViewModel.startNewChallenge()}) {
+                Button(
+                    onClick = { photoSyncViewModel.startNewChallenge() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF000000),
+                        contentColor = Color.White
+                    )
+                ) {
                     Text("New SnapHunt!")
                 }
             }
@@ -78,11 +88,24 @@ fun QuickActions(
         is ScreenState.ChallengeProposed -> {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("New Mission: Find a... ${state.challenge.keyword} !!")
+                Spacer(modifier = Modifier.height(14.dp))
                 Row {
-                    Button(onClick = { photoSyncViewModel.rejectChallenge(state.challenge) }) {
+                    Button(
+                        onClick = { photoSyncViewModel.rejectChallenge(state.challenge) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF000000),
+                            contentColor = Color.White
+                        )
+                    ) {
                         Text("Refuse..")
                     }
-                    Button(onClick = { photoSyncViewModel.acceptChallenge(state.challenge) }) {
+                    Button(
+                        onClick = { photoSyncViewModel.acceptChallenge(state.challenge) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF000000),
+                        contentColor = Color.White
+                        )
+                    ) {
                         Text("Accept!")
                     }
                 }

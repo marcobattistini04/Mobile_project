@@ -24,9 +24,9 @@ fun GaugeChart(
     modifier: Modifier = Modifier
 ) {
     val gaugeColor = when {
-        percentage < 0.4f -> Color(0xFFEF5350)
-        percentage < 0.7f -> Color(0xFFFFCA28)
-        else -> Color(0xFF66BB6A)
+        percentage < 0.4f -> Color(0xFFF2531B)
+        percentage < 0.7f -> Color(0xFF444141)
+        else -> Color(0xFF3A629F)
     }
 
     Box(
