@@ -36,7 +36,9 @@ import com.example.snaphunt.user_settings.SettingsState
 fun ProfileHeader(
     authViewModel: AuthViewModel,
     themeState: SettingsState,
-    themeActions: SettingsActions
+    themeActions: SettingsActions,
+    unlockedCount: Int,
+    totalCount: Int
 ) {
 
     val uiState by authViewModel.state.collectAsStateWithLifecycle()
@@ -111,10 +113,27 @@ fun ProfileHeader(
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Medium
                 )
+
+                Text(
+                    text = "$unlockedCount of $totalCount badges unlocked",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
         }
 
         // FUTURE SECTION PLACEHOLDER
         Spacer(modifier = Modifier.height(12.dp))
+        val progress = if (totalCount > 0) unlockedCount.toFloat() / totalCount else 0f
+        androidx.compose.material3.LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(CircleShape),
+            color = Color(0xFF00875A),
+            trackColor = Color(0xFFE5E5E5)
+        )
     }
 }

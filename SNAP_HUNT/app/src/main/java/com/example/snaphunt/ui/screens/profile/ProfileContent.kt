@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember // <-- AGGIUNTO
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +21,8 @@ import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.presentation.sign_in.SignInEvent
 import com.example.snaphunt.ui.components.AppBar
+import com.example.snaphunt.ui.screens.profile.badge.BadgeEvaluator
+import com.example.snaphunt.ui.screens.profile.badge.BadgeType
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
 
@@ -36,6 +39,7 @@ fun ProfileContent(
     val allPhotos by photoGalleryViewModel.challengeState.collectAsState()
     val stats by photoGalleryViewModel.stats.collectAsState()
     val ctx = LocalContext.current
+
     LaunchedEffect(Unit) {
         authViewModel.events.collect { event ->
             when(event) {
@@ -49,7 +53,6 @@ fun ProfileContent(
             }
         }
     }
-
 
     LaunchedEffect(state.user?.userId, isOnline) {
         if(isOnline) {
@@ -71,15 +74,22 @@ fun ProfileContent(
     ) { contentPadding ->
 
         if (user != null) {
+            val evaluator = remember { BadgeEvaluator() }
+            val badgeStates = remember(allPhotos) { evaluator.calculateUnlockedBadges(allPhotos) }
+            val unlockedCount = badgeStates.values.count { it }
+            val totalCount = BadgeType.entries.size
+
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(contentPadding).padding(12.dp).fillMaxSize()
             ) {
                 item {
                     ProfileHeader(
-                        authViewModel,
-                        themeState,
-                        themeActions
+                        authViewModel = authViewModel,
+                        themeState = themeState,
+                        themeActions = themeActions,
+                        unlockedCount = unlockedCount,
+                        totalCount = totalCount
                     )
                 }
                 item {
