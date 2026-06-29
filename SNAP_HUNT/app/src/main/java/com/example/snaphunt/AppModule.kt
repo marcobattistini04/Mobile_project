@@ -11,6 +11,7 @@ import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
 import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
 import com.example.snaphunt.image_recognition.ObjectDetector
 import com.example.snaphunt.network.NetworkMonitor
+import com.example.snaphunt.photos.ImageStorageManager
 import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.photos.SyncManager
@@ -58,7 +59,9 @@ val appModule = module {
 
     single { get<AppDatabase>().pendingAttemptDao() }
 
-    viewModel {PhotoSyncViewModel(get(), get(), get(), get())}
+    single { ImageStorageManager(androidContext()) }
+
+    viewModel {PhotoSyncViewModel(get(), get(), get(), get(), get())}
     viewModel { PhotoGalleryViewModel(get(), get(), get()) }
 
     single { ObjectDetector(androidContext()) }

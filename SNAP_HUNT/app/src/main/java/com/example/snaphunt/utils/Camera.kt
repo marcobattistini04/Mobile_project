@@ -1,6 +1,5 @@
 package com.example.snaphunt.utils
 
-import android.content.Context
 import androidx.compose.runtime.Composable
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,21 +13,23 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 @Composable
-fun rememberCameraLauncher(): Triple<Uri?, () -> Unit, () -> Unit> {
+fun rememberCameraLauncher(onPhotoTaken: (Uri) -> Unit): Triple<Uri?, () -> Unit, () -> Unit> {
     var launcherUri by remember { mutableStateOf<Uri?>(null) }
     var pictureUri by remember { mutableStateOf<Uri?>(null) }
+    val ctx = LocalContext.current
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture())  { pictureTaken ->
-        if(pictureTaken) launcherUri?.let{
-            pictureUri = it
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && launcherUri != null) {
+            pictureUri = launcherUri
+            onPhotoTaken(launcherUri!!)
         }
     }
 
-    val ctx = LocalContext.current
     val takePicture = {
         val file = File.createTempFile("snaphunt_tmp", ".jpg", ctx.externalCacheDir)
-        launcherUri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", file)
-        launcher.launch(launcherUri!!)
+        val uri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", file)
+        launcherUri = uri
+        launcher.launch(uri)
     }
 
     val reset = { pictureUri = null }

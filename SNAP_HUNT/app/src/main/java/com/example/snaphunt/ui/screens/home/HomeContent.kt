@@ -1,17 +1,13 @@
 package com.example.snaphunt.ui.screens.home
 
-import android.widget.Toast
-import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
@@ -37,19 +33,21 @@ fun HomeContent(
     Scaffold(
         topBar = { AppBar(isNavigationEnabled = canNavigate, title = "SnapHunt", navigationController) }
     ) {contentPadding ->
-        LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(contentPadding).padding(12.dp).fillMaxSize()
+        Column(
+            modifier = Modifier
+                .padding(contentPadding)
+                .padding(12.dp)
+                .fillMaxSize()
         ) {
-            item { HomeHeader(authViewModel, themeState, themeActions) }
-            item { QuickActions(
+            HomeHeader(authViewModel, photoSyncViewModel, themeState, themeActions)
+            QuickActions(
                 objectDetectionViewModel,
                 photoSyncViewModel,
                 authViewModel,
                 themeState,
                 themeActions
-            ) }
-            item { AboutApp(themeState, themeActions) }
+            )
+            AboutApp(themeState, themeActions)
         }
     }
 

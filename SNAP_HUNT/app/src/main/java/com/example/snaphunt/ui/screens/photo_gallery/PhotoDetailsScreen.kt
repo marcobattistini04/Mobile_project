@@ -1,6 +1,5 @@
 package com.example.snaphunt.ui.screens.photo_gallery
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,14 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,12 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.snaphunt.data.user.UserChallengeItem
 import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.ui.components.AppBar
 import java.time.ZonedDateTime
@@ -68,15 +58,7 @@ fun PhotoDetailsScreen(
             } catch (e: Exception) {}
         }
         Scaffold(
-            topBar = { AppBar(isNavigationEnabled = true, title = "Challenge details", navigationController) },
-            floatingActionButton = {
-                FloatingActionButton(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    onClick = {/*TO DO */}
-                ) {
-                    Icon(Icons.Outlined.Share, "Share Challenge")
-                }
-            }
+            topBar = { AppBar(isNavigationEnabled = true, title = "Challenge details", navigationController) }
         ) { contentPadding ->
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),

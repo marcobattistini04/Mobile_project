@@ -12,8 +12,10 @@ import java.util.UUID
 import androidx.core.graphics.scale
 import java.io.OutputStream
 
-class ImageStorageManager {
-    fun saveLocalImage(bitmap: Bitmap, context: Context): File {
+class ImageStorageManager(
+    val context: Context
+) {
+    fun saveLocalImage(bitmap: Bitmap): File {
         val directory = File(context.filesDir, "snap_photos")
         if (!directory.exists()) {
             directory.mkdirs()
@@ -28,7 +30,7 @@ class ImageStorageManager {
         return file
     }
 
-    fun saveImageToGallery(bitmap: Bitmap, context: Context): Boolean {
+    fun saveImageToGallery(bitmap: Bitmap): Boolean {
         val filename = "IMG_${UUID.randomUUID()}.jpg"
 
         val contentValues = ContentValues().apply {

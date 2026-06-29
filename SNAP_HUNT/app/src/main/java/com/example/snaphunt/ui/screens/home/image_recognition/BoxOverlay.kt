@@ -23,14 +23,11 @@ fun BoxOverlay(
         results.detections().forEach { detection ->
             val box = detection.boundingBox()
 
-            // 1. Convertiamo le coordinate 448x448 in proporzioni (0.0 - 1.0)
             val left = box.left / modelInputSize
             val top = box.top / modelInputSize
             val right = box.right / modelInputSize
             val bottom = box.bottom / modelInputSize
 
-            // 2. Mappiamo le proporzioni sulle dimensioni reali del tuo componente UI
-            // Poiché il box ha aspectRatio(1f), size.width e size.height sono uguali
             drawRect(
                 color = Color.Red,
                 topLeft = Offset(
