@@ -10,10 +10,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
+import com.example.snaphunt.photos.PhotoSyncViewModel
 import java.io.File
 
 @Composable
-fun rememberCameraLauncher(onPhotoTaken: (Uri) -> Unit): Triple<Uri?, () -> Unit, () -> Unit> {
+fun rememberCameraLauncher(onPhotoTaken: (Uri) -> Unit, photoSyncViewModel: PhotoSyncViewModel): Triple<Uri?, () -> Unit, () -> Unit> {
     var launcherUri by remember { mutableStateOf<Uri?>(null) }
     var pictureUri by remember { mutableStateOf<Uri?>(null) }
     val ctx = LocalContext.current
@@ -22,6 +23,8 @@ fun rememberCameraLauncher(onPhotoTaken: (Uri) -> Unit): Triple<Uri?, () -> Unit
         if (success && launcherUri != null) {
             pictureUri = launcherUri
             onPhotoTaken(launcherUri!!)
+        } else {
+            photoSyncViewModel.onCameraCancelled()
         }
     }
 

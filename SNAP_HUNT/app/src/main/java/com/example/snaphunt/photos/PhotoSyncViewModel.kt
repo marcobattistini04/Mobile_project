@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -80,6 +81,15 @@ class PhotoSyncViewModel(
         _uiState.value = ScreenState.ChallengeProposed(_currentChallenge.value)
     }
 
+    fun onCameraCancelled() {
+        _uiState.update {
+            if (it is ScreenState.CameraActive) {
+                ScreenState.ChallengeProposed(it.challenge)
+            } else {
+                ScreenState.Idle
+            }
+        }
+    }
 
     fun rejectChallenge(challenge: DailyObjects) {
         val failedAttempt = PendingAttempt(
@@ -105,6 +115,10 @@ class PhotoSyncViewModel(
 
     fun onPhotoCaptured(uri: Uri, challenge: DailyObjects) {
         _uiState.value = ScreenState.PhotoPreview(uri, challenge)
+    }
+
+    fun onAnalysisTerminated() {
+        _isAnalysisPerformed.value = false
     }
 
     fun processAndSave(bitmap: Bitmap, results: DetectionResults, challenge: DailyObjects) {

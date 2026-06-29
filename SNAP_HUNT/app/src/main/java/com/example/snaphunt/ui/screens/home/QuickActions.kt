@@ -59,7 +59,8 @@ fun QuickActions(
                 val challenge = (uiState as ScreenState.CameraActive).challenge
                 photoSyncViewModel.onPhotoCaptured(uri, challenge)
             }
-        }
+        },
+        photoSyncViewModel
     )
 
     LaunchedEffect(Unit) {
@@ -68,7 +69,7 @@ fun QuickActions(
         }
     }
 
-    BackHandler(enabled = uiState is ScreenState.CameraActive && pictureUri != null) {
+    BackHandler(enabled = uiState is ScreenState.PhotoPreview && pictureUri != null) {
         Toast.makeText(ctx, "Cannot interrupt a challenge before it's completed!", Toast.LENGTH_SHORT).show()
     }
 

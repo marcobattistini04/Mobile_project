@@ -53,6 +53,7 @@ fun AnalysisScreen(
     val rawResults by viewModel.rawDetectionResult.collectAsStateWithLifecycle()
     val loading by photoSyncViewModel.isProcessing.collectAsStateWithLifecycle()
     val isSaveEnabled by photoSyncViewModel.savingButtonEnabled.collectAsStateWithLifecycle()
+    val isAnalyzeEnabled by photoSyncViewModel.isAnalysisPerformed.collectAsStateWithLifecycle()
 
     val scrollState = rememberScrollState()
 
@@ -88,12 +89,14 @@ fun AnalysisScreen(
                     viewModel.processImage(bitmap, challenge)
                 }
             },
+            enabled = isAnalyzeEnabled,
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
         ) {
             Text("Analyze Image")
         }
 
         rawResults?.let {
+            photoSyncViewModel.onAnalysisTerminated()
             Text("Objects found: ${it.detections().size}")
             it.detections().forEach { detection ->
                 Text("Found: ${detection.categories().first().categoryName()}")
@@ -101,6 +104,7 @@ fun AnalysisScreen(
         }
 
         results?.let { summary ->
+            photoSyncViewModel.onAnalysisTerminated()
             Card(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
