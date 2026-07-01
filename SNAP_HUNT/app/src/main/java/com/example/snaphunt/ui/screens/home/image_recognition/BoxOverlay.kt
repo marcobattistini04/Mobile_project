@@ -18,7 +18,7 @@ fun BoxOverlay(
     modifier: Modifier = Modifier
 ) {
     Canvas(modifier = modifier) {
-        val modelInputSize = 448f // Il tuo targetSize
+        val modelInputSize = 448f
 
         results.detections().forEach { detection ->
             val box = detection.boundingBox()

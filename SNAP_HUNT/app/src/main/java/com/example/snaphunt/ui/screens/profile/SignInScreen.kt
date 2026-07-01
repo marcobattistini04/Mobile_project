@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +36,10 @@ fun SignInScreen(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
+    val mainButtonBgColor = MaterialTheme.colorScheme.inverseSurface
+    val mainButtonTextColor = MaterialTheme.colorScheme.inverseOnSurface
+    val outlinedButtonBorderColor = MaterialTheme.colorScheme.outline
+    val outlinedButtonTextColor = MaterialTheme.colorScheme.onSurface
 
     LaunchedEffect(state.error) {
         state.error?.let { error ->
@@ -75,7 +81,11 @@ fun SignInScreen(
         // SIGN IN BUTTON
         Button(
             onClick = onSignInClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = mainButtonBgColor,
+                contentColor = mainButtonTextColor
+            )
         ) {
             Text("Sign in")
         }

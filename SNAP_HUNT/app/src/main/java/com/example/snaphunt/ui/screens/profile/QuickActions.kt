@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.snaphunt.SnapHuntRoute
@@ -26,6 +26,9 @@ fun QuickActions(
     themeState: SettingsState,
     themeActions: SettingsActions
 ) {
+    val mainButtonBgColor = MaterialTheme.colorScheme.inverseSurface
+    val mainButtonTextColor = MaterialTheme.colorScheme.inverseOnSurface
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,8 +52,8 @@ fun QuickActions(
                 onClick = { navigationController.navigate(SnapHuntRoute.GraphScreen) },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1A1A1A),
-                    contentColor = Color.White
+                    containerColor = mainButtonBgColor,
+                    contentColor = mainButtonTextColor
                 )
             )
 
@@ -59,8 +62,8 @@ fun QuickActions(
                 onClick = { navigationController.navigate(SnapHuntRoute.PhotoGalleryScreen) },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1A1A1A),
-                    contentColor = Color.White
+                    containerColor = mainButtonBgColor,
+                    contentColor = mainButtonTextColor
                 )
             )
         }

@@ -13,31 +13,32 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import com.example.snaphunt.user_settings.SettingsActions
-import com.example.snaphunt.user_settings.SettingsState
-import com.example.snaphunt.utils.rememberCameraLauncher
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.photos.ScreenState
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.ui.screens.home.image_recognition.AnalysisScreen
+import com.example.snaphunt.user_settings.SettingsActions
+import com.example.snaphunt.user_settings.SettingsState
+import com.example.snaphunt.utils.rememberCameraLauncher
 import com.example.snaphunt.utils.uriToBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun QuickActions(
@@ -48,14 +49,17 @@ fun QuickActions(
     themeActions: SettingsActions
 ) {
     val ctx = LocalContext.current
-    val uiState by photoSyncViewModel.uiState.collectAsState()
+    val uiState by photoSyncViewModel.uiState.collectAsStateWithLifecycle()
     val loading by photoSyncViewModel.isProcessing.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
 
+    val mainButtonBgColor = MaterialTheme.colorScheme.inverseSurface
+    val mainButtonTextColor = MaterialTheme.colorScheme.inverseOnSurface
+
     val (pictureUri, takePicture, reset) = rememberCameraLauncher(
         onPhotoTaken = { uri ->
-            if(uiState is ScreenState.CameraActive) {
+            if (uiState is ScreenState.CameraActive) {
                 val challenge = (uiState as ScreenState.CameraActive).challenge
                 photoSyncViewModel.onPhotoCaptured(uri, challenge)
             }
@@ -73,7 +77,7 @@ fun QuickActions(
         Toast.makeText(ctx, "Cannot interrupt a challenge before it's completed!", Toast.LENGTH_SHORT).show()
     }
 
-    when(val state = uiState) {
+    when (val state = uiState) {
         is ScreenState.Idle -> {
             Row(
                 modifier = Modifier
@@ -84,8 +88,8 @@ fun QuickActions(
                 Button(
                     onClick = { photoSyncViewModel.startNewChallenge() },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF000000),
-                        contentColor = Color.White
+                        containerColor = mainButtonBgColor,
+                        contentColor = mainButtonTextColor
                     )
                 ) {
                     Text("New SnapHunt!")
@@ -101,17 +105,20 @@ fun QuickActions(
                     Button(
                         onClick = { photoSyncViewModel.rejectChallenge(state.challenge) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF000000),
-                            contentColor = Color.White
+                            containerColor = mainButtonBgColor,
+                            contentColor = mainButtonTextColor
                         )
                     ) {
                         Text("Refuse..")
                     }
+
+                    Spacer(modifier = Modifier.size(16.dp))
+
                     Button(
                         onClick = { photoSyncViewModel.acceptChallenge(state.challenge) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF000000),
-                        contentColor = Color.White
+                            containerColor = mainButtonBgColor,
+                            contentColor = mainButtonTextColor
                         )
                     ) {
                         Text("Accept!")
@@ -121,7 +128,7 @@ fun QuickActions(
         }
 
         is ScreenState.CameraActive -> {
-            LaunchedEffect(Unit) {takePicture() }
+            LaunchedEffect(Unit) { takePicture() }
         }
 
         is ScreenState.Analyzing -> {
@@ -147,15 +154,25 @@ fun QuickActions(
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(onClick = {
-                        reset()
-                        photoSyncViewModel.resetToIdle()
-                        objectDetectionViewModel.clearResults()
-                    }) {
-                        Text("Do not Save Picture")
+                    OutlinedButton(
+                        onClick = {
+                            reset()
+                            photoSyncViewModel.resetToIdle()
+                            objectDetectionViewModel.clearResults()
+                        },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    ) {
+                        Text("Don't Save Picture")
                     }
 
-                    Button(
+
+                    OutlinedButton(
                         onClick = {
                             scope.launch(Dispatchers.Default) {
                                 val originalBitmap = uriToBitmap(state.uri, ctx.contentResolver)
@@ -163,10 +180,20 @@ fun QuickActions(
                                 objectDetectionViewModel.clearResults()
                             }
                         },
-                        enabled = !loading
+                        enabled = !loading,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline
+                        )
                     ) {
-                        if(loading) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White)
+                        if (loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         } else {
                             Text("Save Picture")
                         }
@@ -176,5 +203,3 @@ fun QuickActions(
         }
     }
 }
-
-
