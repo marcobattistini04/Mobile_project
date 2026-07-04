@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 val photoSyncViewModel: PhotoSyncViewModel = koinViewModel<PhotoSyncViewModel>()
                 val authViewModel: AuthViewModel  = koinViewModel <AuthViewModel>()
                 val settingsViewModel: SettingsViewModel = koinViewModel <SettingsViewModel>()
-                val photoGalleryViewModel: PhotoGalleryViewModel = koinViewModel < PhotoGalleryViewModel> ()
+                val photoGalleryViewModel: PhotoGalleryViewModel = koinViewModel <PhotoGalleryViewModel> ()
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                 val authState by authViewModel.state.collectAsStateWithLifecycle()
 
@@ -135,7 +135,7 @@ fun NavGraph(
     ) {
 
         composable<SnapHuntRoute.HomeScreen> {
-            HomeScreen(objectDetectionViewModel, photoSyncViewModel, authViewModel, navigationController, themeState, themeActions)
+            HomeScreen(objectDetectionViewModel, photoSyncViewModel, photoGalleryViewModel, authViewModel, navigationController, themeState, themeActions)
         }
 
         composable<SnapHuntRoute.ProfileScreen> {

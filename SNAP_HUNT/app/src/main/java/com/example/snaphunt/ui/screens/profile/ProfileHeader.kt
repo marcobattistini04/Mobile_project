@@ -4,6 +4,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +42,7 @@ fun ProfileHeader(
     authViewModel: AuthViewModel,
     themeState: SettingsState,
     themeActions: SettingsActions,
+    totalUserPoints: Int,
     unlockedCount: Int,
     totalCount: Int
 ) {
@@ -124,6 +127,17 @@ fun ProfileHeader(
                     fontWeight = FontWeight.Medium
                 )
 
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Total User Points",
+                        tint = Color.Red
+                    )
+                    Text(text = "$totalUserPoints")
+                }
+
                 Text(
                     text = "$unlockedCount of $totalCount badges unlocked",
                     fontSize = 14.sp,
@@ -133,7 +147,6 @@ fun ProfileHeader(
             }
         }
 
-        // FUTURE SECTION PLACEHOLDER
         Spacer(modifier = Modifier.height(12.dp))
         val progress = if (totalCount > 0) unlockedCount.toFloat() / totalCount else 0f
         LinearProgressIndicator(
@@ -146,6 +159,5 @@ fun ProfileHeader(
             trackColor = Color(0xFFE5E5E5)
         )
         Spacer(modifier = Modifier.height(10.dp))
-
     }
 }

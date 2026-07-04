@@ -1,7 +1,6 @@
 package com.example.snaphunt.ui.screens.home.image_recognition
 
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +21,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,7 +49,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AnalysisScreen(
-    viewModel: ObjectDetectionViewModel,
+    objectDetectionViewModel: ObjectDetectionViewModel,
     photoSyncViewModel: PhotoSyncViewModel,
     authViewModel: AuthViewModel,
     pictureUri: Uri,
@@ -61,8 +59,10 @@ fun AnalysisScreen(
     val scope = rememberCoroutineScope()
 
     val userState by authViewModel.state.collectAsStateWithLifecycle()
-    val results by viewModel.detectionResults.collectAsStateWithLifecycle()
-    val rawResults by viewModel.rawDetectionResult.collectAsStateWithLifecycle()
+    val results by objectDetectionViewModel.detectionResults.collectAsStateWithLifecycle()
+    val rawResults by objectDetectionViewModel.rawDetectionResult.collectAsStateWithLifecycle()
+    val dailyMultiplier by objectDetectionViewModel.pointsMultiplier.collectAsStateWithLifecycle()
+    val multiplierBonusBase = objectDetectionViewModel.dailyBonusBase
     val loading by photoSyncViewModel.isProcessing.collectAsStateWithLifecycle()
     val isSaveEnabled by photoSyncViewModel.savingButtonEnabled.collectAsStateWithLifecycle()
     val isAnalyzeEnabled by photoSyncViewModel.isAnalysisPerformed.collectAsStateWithLifecycle()
@@ -113,7 +113,7 @@ fun AnalysisScreen(
             onClick = {
                 scope.launch(Dispatchers.IO) {
                     val bitmap = uriToBitmap(pictureUri, context.contentResolver)
-                    viewModel.processImage(bitmap, challenge)
+                    objectDetectionViewModel.processImage(bitmap, challenge)
                 }
             },
             enabled = isAnalyzeEnabled,
@@ -176,13 +176,25 @@ fun AnalysisScreen(
                             textOffset = 7.dp
                         )
                         Spacer(modifier = Modifier.width(16.dp))
-                        ResultStatItem(
-                            iconId = R.drawable.ic_points,
-                            label = "Total Points",
-                            value = "${summary.points}",
-                            modifier = Modifier.weight(1f),
-                            textOffset = 7.dp
-                        )
+                        if (summary.success) {
+                            val basePoints = summary.points - dailyMultiplier * multiplierBonusBase
+                            val additionalPoints = dailyMultiplier * multiplierBonusBase
+                            ResultStatItem(
+                                iconId = R.drawable.ic_points,
+                                label = "Total Points",
+                                value = "$basePoints + $additionalPoints",
+                                modifier = Modifier.weight(1f),
+                                textOffset = 7.dp
+                            )
+                        } else {
+                            ResultStatItem(
+                                iconId = R.drawable.ic_points,
+                                label = "Total Points",
+                                value = "${summary.points}",
+                                modifier = Modifier.weight(1f),
+                                textOffset = 7.dp
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))

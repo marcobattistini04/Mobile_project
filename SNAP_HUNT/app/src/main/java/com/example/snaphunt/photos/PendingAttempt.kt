@@ -1,4 +1,4 @@
-package com.example.snaphunt.photos // o il pacchetto dove si trova
+package com.example.snaphunt.photos
 
 data class PendingAttempt(
     val id: String,

@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
+import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.photos.ScreenState
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
@@ -22,6 +23,7 @@ import com.example.snaphunt.user_settings.SettingsState
 fun HomeContent(
     objectDetectionViewModel: ObjectDetectionViewModel,
     photoSyncViewModel: PhotoSyncViewModel,
+    photoGalleryViewModel: PhotoGalleryViewModel,
     authViewModel: AuthViewModel,
     navigationController: NavHostController,
     themeState: SettingsState,
@@ -39,7 +41,13 @@ fun HomeContent(
                 .padding(12.dp)
                 .fillMaxSize()
         ) {
-            HomeHeader(authViewModel, photoSyncViewModel, themeState, themeActions)
+            HomeHeader(
+                authViewModel,
+                photoSyncViewModel,
+                photoGalleryViewModel,
+                themeState,
+                themeActions
+            )
             QuickActions(
                 objectDetectionViewModel,
                 photoSyncViewModel,

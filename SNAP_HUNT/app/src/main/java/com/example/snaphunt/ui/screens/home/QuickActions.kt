@@ -20,7 +20,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -141,7 +140,7 @@ fun QuickActions(
             Column(modifier = Modifier.fillMaxSize()) {
                 Box(modifier = Modifier.weight(1f)) {
                     AnalysisScreen(
-                        viewModel = objectDetectionViewModel,
+                        objectDetectionViewModel = objectDetectionViewModel,
                         photoSyncViewModel = photoSyncViewModel,
                         authViewModel = authViewModel,
                         pictureUri = state.uri,

@@ -25,6 +25,7 @@ import com.example.snaphunt.ui.screens.profile.badge.BadgeEvaluator
 import com.example.snaphunt.ui.screens.profile.badge.BadgeType
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
+import java.lang.Integer.sum
 
 @Composable
 fun ProfileContent(
@@ -76,6 +77,7 @@ fun ProfileContent(
         if (user != null) {
             val evaluator = remember { BadgeEvaluator() }
             val badgeStates = remember(allPhotos) { evaluator.calculateUnlockedBadges(allPhotos) }
+            val totalUserPoints = stats.totalPoints
             val unlockedCount = badgeStates.values.count { it }
             val totalCount = BadgeType.entries.size
 
@@ -91,6 +93,7 @@ fun ProfileContent(
                         authViewModel = authViewModel,
                         themeState = themeState,
                         themeActions = themeActions,
+                        totalUserPoints = totalUserPoints,
                         unlockedCount = unlockedCount,
                         totalCount = totalCount
                     )

@@ -51,7 +51,7 @@ fun GraphScreen(
     val rawChallenges by photoGalleryViewModel.challengeState.collectAsState()
     val user = state.user
 
-    val puntiDellaSettimana by graphsViewModel.weeklyPoints.collectAsState()
+    val weeklyPoints by graphsViewModel.weeklyPoints.collectAsState()
 
     LaunchedEffect(rawChallenges) {
         graphsViewModel.updateChallenges(rawChallenges)
@@ -183,7 +183,7 @@ fun GraphScreen(
             )
 
             StatsLineChart(
-                points = puntiDellaSettimana,
+                points = weeklyPoints,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)

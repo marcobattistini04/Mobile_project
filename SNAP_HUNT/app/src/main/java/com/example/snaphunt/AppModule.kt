@@ -6,6 +6,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.snaphunt.data.local.AppDatabase
 import com.example.snaphunt.data.local.DatabaseProvider.getDatabase
 import com.example.snaphunt.data.repositories.authentication.AuthRepository
+import com.example.snaphunt.data.repositories.points_multiplier.PointsMultiplierRepository
 import com.example.snaphunt.data.repositories.user_settings.SettingsCloudRepository
 import com.example.snaphunt.data.repositories.user_settings.SettingsRepository
 import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
@@ -30,10 +31,11 @@ val Context.dataStore by preferencesDataStore("theme")
 val appModule = module {
     single {get<Context>().dataStore}
     single { provideSupabaseClient() }
+
     single { AuthRepository(androidContext(), get())}
     single { SettingsCloudRepository(get()) }
-
     single { SettingsRepository(get(), get(), get()) }
+    single { PointsMultiplierRepository() }
 
     single { NetworkMonitor(get()) }
 
@@ -62,10 +64,12 @@ val appModule = module {
     single { ImageStorageManager(androidContext()) }
 
     viewModel {PhotoSyncViewModel(get(), get(), get(), get(), get())}
-    viewModel { PhotoGalleryViewModel(get(), get(), get()) }
+    viewModel { PhotoGalleryViewModel(get(), get(), get(), get()) }
 
     single { ObjectDetector(androidContext()) }
 
-    viewModel { ObjectDetectionViewModel(get()) }
+
+
+    viewModel { ObjectDetectionViewModel(get(), get()) }
 
 }
