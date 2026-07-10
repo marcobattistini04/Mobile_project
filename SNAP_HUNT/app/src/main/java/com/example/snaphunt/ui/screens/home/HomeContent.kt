@@ -55,7 +55,6 @@ fun HomeContent(
                 themeState,
                 themeActions
             )
-            AboutApp(themeState, themeActions)
         }
     }
 
