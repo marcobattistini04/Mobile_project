@@ -38,6 +38,7 @@ ksp = "2.0.21-1.0.26"
 runtime = "1.11.2"
 
 mediapipeTasks = "0.10.14"
+runtimeSaveable = "1.11.4"
 
 
 [libraries]
@@ -96,6 +97,7 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 mediapipe-tasks-vision = { group = "com.google.mediapipe", name = "tasks-vision", version.ref = "mediapipeTasks" }
+androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "runtimeSaveable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
