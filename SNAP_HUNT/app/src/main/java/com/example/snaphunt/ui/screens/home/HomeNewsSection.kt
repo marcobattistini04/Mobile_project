@@ -17,11 +17,9 @@ import com.example.snaphunt.data.user.UserChallengeItem
 
 @Composable
 fun HomeNewsSection(latestChallenges: List<UserChallengeItem>) {
-    // Usiamo una Column con verticalScroll per gestire liste lunghe senza errori
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
             .padding(13.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
