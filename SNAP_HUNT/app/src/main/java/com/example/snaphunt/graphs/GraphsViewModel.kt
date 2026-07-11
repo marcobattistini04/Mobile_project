@@ -29,14 +29,14 @@ class GraphsViewModel : ViewModel() {
             val domenicaCorrente = oggi.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
 
             val giorniMappa = linkedMapOf(
-                "Lun" to 0f, "Mar" to 0f, "Mer" to 0f, "Gio" to 0f, "Ven" to 0f, "Sab" to 0f, "Dom" to 0f
+                "Mon" to 0f, "Tue" to 0f, "Wed" to 0f, "Thu" to 0f, "Fri" to 0f, "Sat" to 0f, "Sun" to 0f
             )
 
             list.forEach { sfida ->
                 try {
                     val dataSfida = LocalDate.parse(sfida.createdAt.substring(0, 10))
                     if (!dataSfida.isBefore(lunediCorrente) && !dataSfida.isAfter(domenicaCorrente)) {
-                        val nomeGiorno = dataSfida.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ITALIAN)
+                        val nomeGiorno = dataSfida.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
                             .replaceFirstChar { it.uppercase() }.take(3)
 
                         if (giorniMappa.containsKey(nomeGiorno)) {
@@ -52,6 +52,6 @@ class GraphsViewModel : ViewModel() {
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = listOf("Lun" to 0f, "Mar" to 0f, "Mer" to 0f, "Gio" to 0f, "Ven" to 0f, "Sab" to 0f, "Dom" to 0f)
+            initialValue = listOf("Mon" to 0f, "Tue" to 0f, "Wed" to 0f, "Thu" to 0f, "Fri" to 0f, "Sat" to 0f, "Sun" to 0f)
         )
 }

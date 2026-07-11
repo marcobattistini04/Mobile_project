@@ -26,7 +26,7 @@ fun ClickablePieChart(
     val total = data.sumOf { it.second.toDouble() }.toFloat().takeIf { it > 0f } ?: 1f
 
     val colors = listOf(
-        Color(0xFF444141),
+        Color(0xFF645D5D),
         Color(0xFFF2531B),
         Color(0xFF3A629F)
     )
