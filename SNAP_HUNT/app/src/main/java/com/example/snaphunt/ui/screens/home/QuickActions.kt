@@ -2,28 +2,15 @@ package com.example.snaphunt.ui.screens.home
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,11 +37,8 @@ fun QuickActions(
     val ctx = LocalContext.current
     val uiState by photoSyncViewModel.uiState.collectAsStateWithLifecycle()
     val loading by photoSyncViewModel.isProcessing.collectAsStateWithLifecycle()
-
     val scope = rememberCoroutineScope()
-
-    val mainButtonBgColor = MaterialTheme.colorScheme.inverseSurface
-    val mainButtonTextColor = MaterialTheme.colorScheme.inverseOnSurface
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
     val (pictureUri, takePicture, reset) = rememberCameraLauncher(
         onPhotoTaken = { uri ->
@@ -66,6 +50,7 @@ fun QuickActions(
         photoSyncViewModel
     )
 
+    // Logica per gestire gli eventi di errore/messaggi
     LaunchedEffect(Unit) {
         photoSyncViewModel.uiEvent.collect { message ->
             Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
@@ -76,49 +61,48 @@ fun QuickActions(
         Toast.makeText(ctx, "Cannot interrupt a challenge before it's completed!", Toast.LENGTH_SHORT).show()
     }
 
+    // Qui gestiamo i vari stati dell'interfaccia
     when (val state = uiState) {
         is ScreenState.Idle -> {
-            Row(
+            // Nota: Rimosso .fillMaxSize() per evitare conflitti di layout
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
                     onClick = { photoSyncViewModel.startNewChallenge() },
+                    modifier = Modifier.fillMaxWidth().height(42.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = mainButtonBgColor,
-                        contentColor = mainButtonTextColor
+                        containerColor = if (isDark) Color.White else Color.Black,
+                        contentColor = if (isDark) Color.Black else Color.White
                     )
                 ) {
-                    Text("New SnapHunt!")
+                    Text("New Snaphunt!")
                 }
             }
         }
 
         is ScreenState.ChallengeProposed -> {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text("New Mission: Find a... ${state.challenge.keyword} !!")
                 Spacer(modifier = Modifier.height(14.dp))
                 Row {
                     Button(
                         onClick = { photoSyncViewModel.rejectChallenge(state.challenge) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = mainButtonBgColor,
-                            contentColor = mainButtonTextColor
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inverseSurface)
                     ) {
                         Text("Refuse..")
                     }
-
                     Spacer(modifier = Modifier.size(16.dp))
-
                     Button(
                         onClick = { photoSyncViewModel.acceptChallenge(state.challenge) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = mainButtonBgColor,
-                            contentColor = mainButtonTextColor
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inverseSurface)
                     ) {
                         Text("Accept!")
                     }
@@ -148,9 +132,7 @@ fun QuickActions(
                     )
                 }
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     OutlinedButton(
@@ -159,17 +141,10 @@ fun QuickActions(
                             photoSyncViewModel.resetToIdle()
                             objectDetectionViewModel.clearResults()
                         },
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline
-                        )
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
                         Text("Don't Save Picture")
                     }
-
 
                     OutlinedButton(
                         onClick = {
@@ -180,19 +155,10 @@ fun QuickActions(
                             }
                         },
                         enabled = !loading,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline
-                        )
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
                         if (loading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp))
                         } else {
                             Text("Save Picture")
                         }
