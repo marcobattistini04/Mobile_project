@@ -5,15 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -67,8 +64,6 @@ fun AnalysisScreen(
     val isSaveEnabled by photoSyncViewModel.savingButtonEnabled.collectAsStateWithLifecycle()
     val isAnalyzeEnabled by photoSyncViewModel.isAnalysisPerformed.collectAsStateWithLifecycle()
 
-    val scrollState = rememberScrollState()
-
     val backgroundGreen = Color(0xFFE2F3E7)
     val backgroundRed = Color(0xFFFFEBEF)
 
@@ -78,8 +73,7 @@ fun AnalysisScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
+            .fillMaxWidth()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -87,7 +81,6 @@ fun AnalysisScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(350.dp)
                 .shadow(
                     elevation = 12.dp,
                     shape = RoundedCornerShape(12.dp),
@@ -98,8 +91,8 @@ fun AnalysisScreen(
             AsyncImage(
                 model = pictureUri,
                 contentDescription = "Captured image",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Fit
             )
 
             rawResults?.let {

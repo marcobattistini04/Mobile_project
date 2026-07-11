@@ -20,24 +20,42 @@ fun BoxOverlay(
     Canvas(modifier = modifier) {
         val modelInputSize = 448f
 
+        val canvasRatio = size.width / size.height
+
+        val scaledWidth: Float
+        val scaledHeight: Float
+        val xOffset: Float
+        val yOffset: Float
+
+        if (canvasRatio > 1f) {
+            scaledWidth = modelInputSize
+            scaledHeight = modelInputSize / canvasRatio
+            xOffset = 0f
+            yOffset = (modelInputSize - scaledHeight) / 2f
+        } else {
+            scaledWidth = modelInputSize * canvasRatio
+            scaledHeight = modelInputSize
+            xOffset = (modelInputSize - scaledWidth) / 2f
+            yOffset = 0f
+        }
+
         results.detections().forEach { detection ->
             val box = detection.boundingBox()
 
-            val left = box.left / modelInputSize
-            val top = box.top / modelInputSize
-            val right = box.right / modelInputSize
-            val bottom = box.bottom / modelInputSize
+            val normLeft = (box.left - xOffset) / scaledWidth
+            val normTop = (box.top - yOffset) / scaledHeight
+            val normRight = (box.right - xOffset) / scaledWidth
+            val normBottom = (box.bottom - yOffset) / scaledHeight
+
+            val drawLeft = normLeft * size.width
+            val drawTop = normTop * size.height
+            val drawWidth = (normRight - normLeft) * size.width
+            val drawHeight = (normBottom - normTop) * size.height
 
             drawRect(
                 color = Color.Red,
-                topLeft = Offset(
-                    x = left * size.width,
-                    y = top * size.height
-                ),
-                size = Size(
-                    width = (right - left) * size.width,
-                    height = (bottom - top) * size.height
-                ),
+                topLeft = Offset(x = drawLeft, y = drawTop),
+                size = Size(width = drawWidth, height = drawHeight),
                 style = Stroke(width = 4.dp.toPx())
             )
         }
