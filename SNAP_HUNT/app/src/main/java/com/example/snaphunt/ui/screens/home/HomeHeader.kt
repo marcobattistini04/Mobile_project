@@ -100,8 +100,6 @@ fun HomeHeader(
 
                     MultiplierStreakCard(multiplier = multiplier, activeDays = activeDays)
 
-
-
                 }
                 else -> {}
             }

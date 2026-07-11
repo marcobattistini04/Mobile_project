@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
+import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.photos.ScreenState
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
@@ -30,17 +31,19 @@ import kotlinx.coroutines.launch
 fun QuickActions(
     objectDetectionViewModel: ObjectDetectionViewModel,
     photoSyncViewModel: PhotoSyncViewModel,
+    photoGalleryViewModel: PhotoGalleryViewModel,
     authViewModel: AuthViewModel,
     themeState: SettingsState,
     themeActions: SettingsActions
 ) {
+    val authState by authViewModel.state.collectAsStateWithLifecycle()
     val ctx = LocalContext.current
     val uiState by photoSyncViewModel.uiState.collectAsStateWithLifecycle()
     val loading by photoSyncViewModel.isProcessing.collectAsStateWithLifecycle()
     val analysisResults by objectDetectionViewModel.detectionResults.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-
+    val latestChallenges by photoGalleryViewModel.latestCompletedChallenges.collectAsStateWithLifecycle()
     val (pictureUri, takePicture, reset) = rememberCameraLauncher(
         onPhotoTaken = { uri ->
             if (uiState is ScreenState.CameraActive) {
@@ -79,6 +82,9 @@ fun QuickActions(
                     )
                 ) {
                     Text("New Snaphunt!")
+                }
+                if (authState.user != null) {
+                    HomeNewsSection(latestChallenges)
                 }
             }
         }

@@ -55,8 +55,8 @@ fun HomeContent(
             QuickActions(
                 objectDetectionViewModel,
                 photoSyncViewModel,
-                authViewModel,
                 photoGalleryViewModel,
+                authViewModel,
                 themeState,
                 themeActions
             )
