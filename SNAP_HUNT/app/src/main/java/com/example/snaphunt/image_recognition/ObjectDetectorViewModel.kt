@@ -1,10 +1,13 @@
 package com.example.snaphunt.image_recognition
 
+import android.content.ContentResolver
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.snaphunt.data.repositories.points_multiplier.PointsMultiplierRepository
 import com.example.snaphunt.utils.prepareBitmapForModel
+import com.example.snaphunt.utils.uriToBitmap
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectorResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,7 +54,7 @@ class ObjectDetectionViewModel(
         detector.close()
     }
 
-    fun processImage(bitmap: Bitmap, challenge: DailyObjects) {
+    private fun processImage(bitmap: Bitmap, challenge: DailyObjects) {
         viewModelScope.launch(Dispatchers.Default) {
             val preparedBitMap = prepareBitmapForModel(bitmap)
             try {
@@ -60,6 +63,27 @@ class ObjectDetectionViewModel(
             } finally {
                 preparedBitMap.recycle()
             }
+        }
+    }
+
+    fun processImageFromUri(uri: Uri, contentResolver: ContentResolver, challenge: DailyObjects) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val bitmap = uriToBitmap(uri, contentResolver)
+
+                if (bitmap == null || bitmap.isRecycled) {
+                    return@launch
+                }
+
+                val finalBitmap = if (bitmap.config != Bitmap.Config.ARGB_8888) {
+                    bitmap.copy(Bitmap.Config.ARGB_8888, false)
+                } else {
+                    bitmap
+                }
+
+                processImage(finalBitmap, challenge)
+
+            } catch (e: Exception) { }
         }
     }
 

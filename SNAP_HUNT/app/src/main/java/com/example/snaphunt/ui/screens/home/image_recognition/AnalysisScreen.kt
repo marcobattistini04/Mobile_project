@@ -104,9 +104,8 @@ fun AnalysisScreen(
 
         Button(
             onClick = {
-                scope.launch(Dispatchers.IO) {
-                    val bitmap = uriToBitmap(pictureUri, context.contentResolver)
-                    objectDetectionViewModel.processImage(bitmap, challenge)
+                pictureUri.let { uri->
+                    objectDetectionViewModel.processImageFromUri(uri, context.contentResolver, challenge)
                 }
             },
             enabled = isAnalyzeEnabled,
