@@ -13,6 +13,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.snaphunt.photos.PhotoGalleryViewModel
@@ -23,6 +25,7 @@ import com.example.snaphunt.ui.components.MultiplierStreakCard
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
 import java.time.DayOfWeek
+import com.example.snaphunt.ui.components.WelcomeFeatureCard
 
 
 @Composable
@@ -67,18 +70,31 @@ fun HomeHeader(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Spacer(modifier = Modifier.size(24.dp))
+        Spacer(modifier = Modifier.size(8.dp))
         if (user == null) {
             Text(
-                text = "Welcome User 👋",
-                style = MaterialTheme.typography.bodyLarge
+                text = "Welcome User!",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when (val state = uiState) {
+                is ScreenState.Idle -> {
+                    WelcomeFeatureCard()
+                }
+                else -> {}
+            }
         } else {
             when (val state = uiState) {
                 is ScreenState.Idle -> {
                     Text(
-                        text = "Welcome " + user.username.toString() + " 👋",
-                        style = MaterialTheme.typography.bodyLarge
+                        text = "Welcome " + user.username.toString() + "!",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
