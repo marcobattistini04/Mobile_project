@@ -25,12 +25,15 @@ import com.example.snaphunt.utils.rememberCameraLauncher
 import com.example.snaphunt.utils.uriToBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.example.snaphunt.photos.PhotoGalleryViewModel
+
 
 @Composable
 fun QuickActions(
     objectDetectionViewModel: ObjectDetectionViewModel,
     photoSyncViewModel: PhotoSyncViewModel,
     authViewModel: AuthViewModel,
+    photoGalleryViewModel: PhotoGalleryViewModel,
     themeState: SettingsState,
     themeActions: SettingsActions
 ) {
@@ -39,6 +42,7 @@ fun QuickActions(
     val loading by photoSyncViewModel.isProcessing.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val latestChallenges by photoGalleryViewModel.latestCompletedChallenges.collectAsStateWithLifecycle()
 
     val (pictureUri, takePicture, reset) = rememberCameraLauncher(
         onPhotoTaken = { uri ->
@@ -50,7 +54,7 @@ fun QuickActions(
         photoSyncViewModel
     )
 
-    // Logica per gestire gli eventi di errore/messaggi
+
     LaunchedEffect(Unit) {
         photoSyncViewModel.uiEvent.collect { message ->
             Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
@@ -61,10 +65,10 @@ fun QuickActions(
         Toast.makeText(ctx, "Cannot interrupt a challenge before it's completed!", Toast.LENGTH_SHORT).show()
     }
 
-    // Qui gestiamo i vari stati dell'interfaccia
+
     when (val state = uiState) {
         is ScreenState.Idle -> {
-            // Nota: Rimosso .fillMaxSize() per evitare conflitti di layout
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,6 +86,7 @@ fun QuickActions(
                 ) {
                     Text("New Snaphunt!")
                 }
+                HomeNewsSection(latestChallenges)
             }
         }
 

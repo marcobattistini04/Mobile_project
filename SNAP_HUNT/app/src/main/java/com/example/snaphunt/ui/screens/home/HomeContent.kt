@@ -52,6 +52,7 @@ fun HomeContent(
                 objectDetectionViewModel,
                 photoSyncViewModel,
                 authViewModel,
+                photoGalleryViewModel,
                 themeState,
                 themeActions
             )

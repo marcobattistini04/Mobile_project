@@ -39,7 +39,6 @@ fun HomeHeader(
     val state by authViewModel.state.collectAsStateWithLifecycle()
     val uiState by photoSyncViewModel.uiState.collectAsStateWithLifecycle()
     val rawChallenges by photoGalleryViewModel.challengeState.collectAsStateWithLifecycle()
-    val latestChallenges by photoGalleryViewModel.latestCompletedChallenges.collectAsStateWithLifecycle()
     val multiplier by photoGalleryViewModel.weeklyMultiplier.collectAsStateWithLifecycle()
 
     val user = state.user
@@ -101,7 +100,7 @@ fun HomeHeader(
 
                     MultiplierStreakCard(multiplier = multiplier, activeDays = activeDays)
 
-                    HomeNewsSection(latestChallenges)
+
 
                 }
                 else -> {}
