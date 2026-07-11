@@ -1,7 +1,9 @@
 package com.example.snaphunt.ui.screens.photo_gallery
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,7 +54,8 @@ fun PhotoDetailsScreen(
                 modifier = Modifier
                     .padding(contentPadding)
                     .padding(16.dp)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -62,9 +65,10 @@ fun PhotoDetailsScreen(
                         contentDescription = "Challenge Photo",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(250.dp)
+                            .wrapContentHeight()
+                            .heightIn(max = 450.dp)
                             .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Fit
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
