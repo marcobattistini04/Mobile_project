@@ -5,14 +5,12 @@ import android.widget.Toast
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -52,8 +50,6 @@ import com.example.snaphunt.SnapHuntRoute
 import com.example.snaphunt.data.user.UserChallengeItem
 import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.ui.components.FilterBar
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toLocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -117,7 +113,7 @@ fun PhotoGalleryScreen(authViewModel: AuthViewModel, galleryViewModel: PhotoGall
                             else -> Icons.Default.DateRange
                         },
                         contentDescription = "Change sort logic by descending points or date",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

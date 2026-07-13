@@ -1,40 +1,23 @@
 package com.example.snaphunt.ui.screens.photo_gallery
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.snaphunt.data.user.UserChallengeItem
+import com.example.snaphunt.R
 import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.ui.components.AppBar
 import java.time.ZonedDateTime
@@ -58,86 +41,91 @@ fun PhotoDetailsScreen(
         }
     } else {
         val item = challenge!!
-
         val formatterInput = DateTimeFormatter.ISO_DATE_TIME
         val formatterOutput = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         val formattedDate = remember(item.createdAt) {
-            try {
-                ZonedDateTime.parse(item.createdAt, formatterInput).format(formatterOutput)
-
-            } catch (e: Exception) {}
+            try { ZonedDateTime.parse(item.createdAt, formatterInput).format(formatterOutput) } catch (e: Exception) { "" }
         }
+
         Scaffold(
-            topBar = { AppBar(isNavigationEnabled = true, title = "Challenge details", navigationController) },
-            floatingActionButton = {
-                FloatingActionButton(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    onClick = {/*TO DO */}
-                ) {
-                    Icon(Icons.Outlined.Share, "Share Challenge")
-                }
-            }
+            topBar = { AppBar(isNavigationEnabled = true, title = "Challenges Details", navigationController) }
         ) { contentPadding ->
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(contentPadding).padding(16.dp).fillMaxSize()
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .padding(16.dp)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 if (!item.storagePath.isNullOrBlank() && item.storagePath.startsWith("http")) {
                     AsyncImage(
                         model = item.storagePath,
                         contentDescription = "Challenge Photo",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp)
-                            .clip(MaterialTheme.shapes.medium),
-                        contentScale = ContentScale.Crop
+                            .wrapContentHeight()
+                            .heightIn(max = 450.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentScale = ContentScale.Fit
                     )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No photo available", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = item.challengeText,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Start)
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Created at: $formattedDate",
-                    style = MaterialTheme.typography.bodySmall
+                    text = "Created at $formattedDate",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.Start)
                 )
-                Text (
-                    text = "Ai label: ${item.aiLabel ?: "Not analized"}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "AI Confidence: ${item.aiConfidence?.let { (it * 100).toInt().toString() + "%" } ?: "Not Analized"}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "State: ${if (item.success) "Success" else "Failed"}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (item.success) Color.Green else Color.Red
-                )
-                Text(
-                    text = "Points Earned: ${(item.points)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = "Additional Objects Found: ${(item.additionalObjects)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                Spacer(modifier = Modifier.height(16.dp))
 
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    InfoCard(label = "Points earned", value = item.points.toString(), modifier = Modifier.weight(1f))
+                    InfoCard(label = "Additional Object", value = item.additionalObjects.toString(), modifier = Modifier.weight(1f))
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painter = painterResource(id = R.drawable.icon_label), contentDescription = null, modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Ai label", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.weight(1f))
+                        Text(item.aiLabel ?: "Not analyzed", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painter = painterResource(id = R.drawable.icon_conf), contentDescription = null, modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Ai Confidence", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.weight(1f))
+                        Text("${(item.aiConfidence?.times(100)?.toInt() ?: 0)}%", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                    Spacer(modifier = Modifier.height(1.dp))
+
+                    LinearProgressIndicator(
+                        progress = { item.aiConfidence?.toFloat() ?: 0f },
+                        modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                        color = Color(0xFF009649)
+                    )
+                }
+                Spacer(modifier = Modifier.height(18.dp))
+
+                Text(
+                    text = "State : ${if (item.success) "Success" else "Failed"}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (item.success) Color(0xFF009649) else Color.Red
+                )
             }
         }
     }
-
 }

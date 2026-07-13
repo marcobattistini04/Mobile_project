@@ -2,14 +2,15 @@ package com.example.snaphunt.ui.screens.profile
 
 import android.app.Activity
 import android.widget.Toast
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,8 +21,11 @@ import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.presentation.sign_in.SignInEvent
 import com.example.snaphunt.ui.components.AppBar
+import com.example.snaphunt.ui.screens.profile.badge.BadgeEvaluator
+import com.example.snaphunt.ui.screens.profile.badge.BadgeType
 import com.example.snaphunt.user_settings.SettingsActions
 import com.example.snaphunt.user_settings.SettingsState
+import java.lang.Integer.sum
 
 @Composable
 fun ProfileContent(
@@ -33,8 +37,10 @@ fun ProfileContent(
 ) {
     val state by authViewModel.state.collectAsStateWithLifecycle()
     val isOnline by photoGalleryViewModel.isOnline.collectAsState()
+    val allPhotos by photoGalleryViewModel.challengeState.collectAsState()
     val stats by photoGalleryViewModel.stats.collectAsState()
     val ctx = LocalContext.current
+
     LaunchedEffect(Unit) {
         authViewModel.events.collect { event ->
             when(event) {
@@ -48,7 +54,6 @@ fun ProfileContent(
             }
         }
     }
-
 
     LaunchedEffect(state.user?.userId, isOnline) {
         if(isOnline) {
@@ -70,18 +75,38 @@ fun ProfileContent(
     ) { contentPadding ->
 
         if (user != null) {
+            val evaluator = remember { BadgeEvaluator() }
+            val badgeStates = remember(allPhotos) { evaluator.calculateUnlockedBadges(allPhotos) }
+            val totalUserPoints = stats.totalPoints
+            val unlockedCount = badgeStates.values.count { it }
+            val totalCount = BadgeType.entries.size
+
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(contentPadding).padding(12.dp).fillMaxSize()
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .padding(12.dp)
+                    .wrapContentHeight()
             ) {
                 item {
                     ProfileHeader(
-                        authViewModel,
-                        themeState,
-                        themeActions
+                        authViewModel = authViewModel,
+                        themeState = themeState,
+                        themeActions = themeActions,
+                        totalUserPoints = totalUserPoints,
+                        unlockedCount = unlockedCount,
+                        totalCount = totalCount
                     )
                 }
-                item { AboutUser(user, stats, themeState, themeActions) }
+                item {
+                    AboutUser(
+                        userLogInData = user,
+                        stats = stats,
+                        photos = allPhotos,
+                        themeState = themeState,
+                        themeActions = themeActions
+                    )
+                }
                 item {
                     QuickActions(
                         authViewModel,

@@ -1,13 +1,20 @@
 package com.example.snaphunt.image_recognition
 
+import android.content.ContentResolver
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.snaphunt.data.repositories.points_multiplier.PointsMultiplierRepository
 import com.example.snaphunt.utils.prepareBitmapForModel
+import com.example.snaphunt.utils.uriToBitmap
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectorResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.String
 
@@ -18,13 +25,25 @@ data class DetectionResults(
     val points: Int = 0,
     val additionalObjects: Int = 0
 )
-class ObjectDetectionViewModel(private val detector: ObjectDetector) : ViewModel() {
+class ObjectDetectionViewModel(
+    private val detector: ObjectDetector,
+    private val pointsMultiplierRepository: PointsMultiplierRepository
+) : ViewModel() {
 
     private val _detectionResults = MutableStateFlow<DetectionResults?>(null)
     val detectionResults = _detectionResults.asStateFlow()
 
     private val _rawDetectionResult = MutableStateFlow<ObjectDetectorResult?>(null)
     val rawDetectionResult = _rawDetectionResult.asStateFlow()
+
+    val pointsMultiplier: StateFlow<Int> = pointsMultiplierRepository.weeklyMultiplier
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = 1
+        )
+
+    val dailyBonusBase = 10
 
     fun detect(bitmap: Bitmap): ObjectDetectorResult? {
         return detector.detect(bitmap)
@@ -35,7 +54,7 @@ class ObjectDetectionViewModel(private val detector: ObjectDetector) : ViewModel
         detector.close()
     }
 
-    fun processImage(bitmap: Bitmap, challenge: DailyObjects) {
+    private fun processImage(bitmap: Bitmap, challenge: DailyObjects) {
         viewModelScope.launch(Dispatchers.Default) {
             val preparedBitMap = prepareBitmapForModel(bitmap)
             try {
@@ -44,6 +63,27 @@ class ObjectDetectionViewModel(private val detector: ObjectDetector) : ViewModel
             } finally {
                 preparedBitMap.recycle()
             }
+        }
+    }
+
+    fun processImageFromUri(uri: Uri, contentResolver: ContentResolver, challenge: DailyObjects) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val bitmap = uriToBitmap(uri, contentResolver)
+
+                if (bitmap == null || bitmap.isRecycled) {
+                    return@launch
+                }
+
+                val finalBitmap = if (bitmap.config != Bitmap.Config.ARGB_8888) {
+                    bitmap.copy(Bitmap.Config.ARGB_8888, false)
+                } else {
+                    bitmap
+                }
+
+                processImage(finalBitmap, challenge)
+
+            } catch (e: Exception) { }
         }
     }
 
@@ -76,7 +116,7 @@ class ObjectDetectionViewModel(private val detector: ObjectDetector) : ViewModel
             val confidenceBonus = aiConfidence * 20.0
             val extraObjectsBonus = additionalObjects * 10.0
 
-            points = (basePoints + confidenceBonus + extraObjectsBonus).toInt()
+            points = (basePoints + confidenceBonus + extraObjectsBonus + (pointsMultiplier.value * dailyBonusBase)).toInt()
         }
 
         val attempt = DetectionResults(

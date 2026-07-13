@@ -1,159 +1,252 @@
 package com.example.snaphunt.ui.screens.home.image_recognition
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.example.snaphunt.R
 import com.example.snaphunt.image_recognition.DailyObjects
-import com.example.snaphunt.image_recognition.DetectionResults
 import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
 import com.example.snaphunt.utils.uriToBitmap
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
 @Composable
 fun AnalysisScreen(
-    viewModel: ObjectDetectionViewModel,
+    objectDetectionViewModel: ObjectDetectionViewModel,
     photoSyncViewModel: PhotoSyncViewModel,
     authViewModel: AuthViewModel,
     pictureUri: Uri,
-    challenge: DailyObjects,
-    onAnalysisFinished: (DetectionResults) -> Unit,
-    context: Context = LocalContext.current,
+    challenge: DailyObjects
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     val userState by authViewModel.state.collectAsStateWithLifecycle()
-    val results by viewModel.detectionResults.collectAsState()
-    val rawResults by viewModel.rawDetectionResult.collectAsState()
-    val loading = photoSyncViewModel.isProcessing.collectAsState()
-    val savingButtonEnabled = photoSyncViewModel.savingButtonEnabled.collectAsState()
+    val results by objectDetectionViewModel.detectionResults.collectAsStateWithLifecycle()
+    val rawResults by objectDetectionViewModel.rawDetectionResult.collectAsStateWithLifecycle()
+    val dailyMultiplier by objectDetectionViewModel.pointsMultiplier.collectAsStateWithLifecycle()
+    val multiplierBonusBase = objectDetectionViewModel.dailyBonusBase
+    val loading by photoSyncViewModel.isProcessing.collectAsStateWithLifecycle()
+    val isSaveEnabled by photoSyncViewModel.savingButtonEnabled.collectAsStateWithLifecycle()
+    val isAnalyzeEnabled by photoSyncViewModel.isAnalysisPerformed.collectAsStateWithLifecycle()
 
-    var bitmap by remember(pictureUri) { mutableStateOf<Bitmap?>(null) }
+    val backgroundGreen = Color(0xFFE2F3E7)
+    val backgroundRed = Color(0xFFFFEBEF)
 
+    val mainButtonBgColor = MaterialTheme.colorScheme.inverseSurface
+    val mainButtonTextColor = MaterialTheme.colorScheme.inverseOnSurface
+    val outlineTextColor = MaterialTheme.colorScheme.onSurface
 
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-    LaunchedEffect(pictureUri) {
-        viewModel.clearResults()
-        withContext(Dispatchers.IO) {
-            bitmap = uriToBitmap(pictureUri, context.contentResolver)
-        }
-    }
-
-    Column(modifier = Modifier.padding(16.dp)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(8.dp))
+                .shadow(
+                    elevation = 12.dp,
+                    shape = RoundedCornerShape(12.dp),
+                    clip = false
+                )
+                .clip(RoundedCornerShape(12.dp))
         ) {
             AsyncImage(
                 model = pictureUri,
                 contentDescription = "Captured image",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Fit
             )
 
-            bitmap?.let {bitmap ->
-                rawResults?.let {
-                    BoxOverlay(
-                        results = it,
-                        modifier = Modifier.fillMaxSize()
-                    )
+            rawResults?.let {
+                BoxOverlay(results = it, modifier = Modifier.matchParentSize())
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                pictureUri.let { uri->
+                    objectDetectionViewModel.processImageFromUri(uri, context.contentResolver, challenge)
                 }
-            }
+            },
+            enabled = isAnalyzeEnabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = mainButtonBgColor,
+                contentColor = mainButtonTextColor
+            ),
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_analize),
+                contentDescription = "Analize Icon",
+                modifier = Modifier.size(20.dp),
+                tint = mainButtonTextColor
+            )
+            Spacer(modifier = Modifier.width(7.dp))
+            Text("Analize Image", fontWeight = FontWeight.Bold)
         }
 
-        bitmap?.let {bitmap ->
-            Button(onClick = {
-                viewModel.processImage(bitmap, challenge)
-            }) {
-                Text("Analize Image")
-            }
-        }
-
-
-        rawResults?.let {
-            Text("Objects found: ${it.detections().size}")
-            it.detections().forEach { detection ->
-                Text("Found: ${detection.categories().first().categoryName()}")
-            }
-        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         results?.let { summary ->
+            photoSyncViewModel.onAnalysisTerminated()
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                colors = CardDefaults.cardColors(
+                    containerColor = if (summary.success) backgroundGreen else backgroundRed
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        text = if (summary.success) "Mission Completed!" else "Object  not found",
+                        text = if (summary.success) "Results - Scan Complete!" else "Results - Scan Error!",
                         style = MaterialTheme.typography.titleMedium,
-                        color = if (summary.success) Color.Green else Color.Red
+                        color = if (summary.success) Color(0xFF2E7D32) else Color.Red,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center
                     )
-                    Text("Total points: ${summary.points}")
-                    Text("Additional objects found: ${summary.additionalObjects}")
-                    Text("Model Confidence: ${(summary.aiConfidence * 100).toInt()}%")
 
-                    //EVENTUALLY IF THE CHALLENGE IS LOST THE UPLOAD COULD BE AUTOMATIC AND NOT LINKED TO A BUTTON
-                    // IN ORDER TO AVOID SMART USERS :)
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    if(userState.isInitializing) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                    } else {
-                        if(userState.user != null) {
-                            Button(
-                                onClick = {
-                                    onAnalysisFinished(summary)
-                                },
-                                enabled = savingButtonEnabled.value,
-                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-                            ) {
-                                if (loading.value) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        color = Color.White,
-                                        strokeWidth = 2.dp
-                                    )
-                                } else {
-                                    Text("Save and Complete Challenge")
-                                }
-                            }
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        ResultStatItem(
+                            iconId = R.drawable.ic_object_found,
+                            label = "Object found",
+                            value = "${if (summary.success) 1 else 0}",
+                            modifier = Modifier.weight(1f),
+                            textOffset = 7.dp
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        if (summary.success) {
+                            val basePoints = summary.points - dailyMultiplier * multiplierBonusBase
+                            val additionalPoints = dailyMultiplier * multiplierBonusBase
+                            ResultStatItem(
+                                iconId = R.drawable.ic_points,
+                                label = "Total Points",
+                                value = "$basePoints + $additionalPoints",
+                                modifier = Modifier.weight(1f),
+                                textOffset = 7.dp
+                            )
                         } else {
-                            Text("Login to save your progress", color = Color.Gray)
+                            ResultStatItem(
+                                iconId = R.drawable.ic_points,
+                                label = "Total Points",
+                                value = "${summary.points}",
+                                modifier = Modifier.weight(1f),
+                                textOffset = 7.dp
+                            )
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        ResultStatItem(
+                            iconId = R.drawable.ic_additional_objects,
+                            label = "Additional Object",
+                            value = "${summary.additionalObjects}",
+                            modifier = Modifier.weight(1f),
+                            textOffset = 0.dp
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        ResultStatItem(
+                            iconId = R.drawable.ic_confidence,
+                            label = "Model confidence",
+                            value = "${(summary.aiConfidence * 100).toInt()}%",
+                            modifier = Modifier.weight(1f),
+                            textOffset = 0.dp
+                        )
+                    }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (userState.user != null) {
+                Button(
+                    onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            val bitmap = uriToBitmap(pictureUri, context.contentResolver)
+                            photoSyncViewModel.processAndSave(bitmap, summary, challenge)
+                        }
+                    },
+                    enabled = isSaveEnabled && !loading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = mainButtonBgColor,
+                        contentColor = mainButtonTextColor
+                    ),
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    if (loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = mainButtonTextColor
+                        )
+                    } else {
+                        Text("Save and Complete Challenge", fontWeight = FontWeight.Bold)
+                    }
+                }
+
+
+
+            } else {
+                Text("Login to save your progress", color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
             }
         }
     }

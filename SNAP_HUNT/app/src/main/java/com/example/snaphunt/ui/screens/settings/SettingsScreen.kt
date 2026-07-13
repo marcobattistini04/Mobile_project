@@ -38,27 +38,6 @@ fun SettingsScreen(navigationController: NavHostController, settingsState: Setti
                 rememberScrollState()
             )
         ) {
-
-            Spacer(modifier = Modifier.size(32.dp))
-
-            Text(
-                "Enable SnapHunt Events notifications",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp)
-            )
-            RadioListItem(
-                label = "Yes, I want to receive notifications",
-                selected = settingsState.notification,
-                onClick = { settingsActions.setEnableNotifications(true)}
-            )
-
-            RadioListItem(
-                label = "No, do not send me notifications",
-                selected = !settingsState.notification,
-                onClick = { settingsActions.setEnableNotifications(false)}
-            )
-
             Spacer(modifier = Modifier.size(24.dp))
 
             Text(

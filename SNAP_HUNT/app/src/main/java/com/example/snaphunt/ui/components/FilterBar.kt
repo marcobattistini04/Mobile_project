@@ -19,13 +19,25 @@ import com.example.snaphunt.photos.ChallengeFilter
 @Composable
 fun FilterBar(currentFilter: ChallengeFilter, onFilterSelected: (ChallengeFilter) -> Unit) {
     SingleChoiceSegmentedButtonRow(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp).height(IntrinsicSize.Min)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp)
+            .height(IntrinsicSize.Min)
+
     ) {
         ChallengeFilter.entries.forEachIndexed { index, filter ->
             SegmentedButton(
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = ChallengeFilter.entries.size),
                 onClick = { onFilterSelected(filter) },
                 selected = currentFilter == filter,
+                colors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = MaterialTheme.colorScheme.onSurface,
+                    activeContentColor = MaterialTheme.colorScheme.surface,
+                    inactiveContainerColor = MaterialTheme.colorScheme.surface,
+                    inactiveContentColor = MaterialTheme.colorScheme.onSurface,
+                    activeBorderColor = MaterialTheme.colorScheme.onSurface,
+                    inactiveBorderColor = MaterialTheme.colorScheme.onSurface
+                ),
                 label = {
                     Text(
                         text = when(filter) {

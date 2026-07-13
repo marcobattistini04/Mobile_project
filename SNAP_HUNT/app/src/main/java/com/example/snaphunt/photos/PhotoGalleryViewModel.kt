@@ -1,11 +1,9 @@
 package com.example.snaphunt.photos
 
 import android.util.Log
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.example.snaphunt.data.repositories.points_multiplier.PointsMultiplierRepository
 import com.example.snaphunt.data.user.UserChallengeItem
 import com.example.snaphunt.network.NetworkMonitor
 import com.example.snaphunt.data.user.UserStats
@@ -27,7 +25,8 @@ enum class ChallengeFilter {
 class PhotoGalleryViewModel(
     private val postgrest: Postgrest,
     private val storage: Storage,
-    private val networkMonitor: NetworkMonitor
+    private val networkMonitor: NetworkMonitor,
+    private val pointsMultiplierRepository: PointsMultiplierRepository
 ): ViewModel() {
     private val _challengeState = MutableStateFlow<List<UserChallengeItem>>(emptyList())
     val challengeState = _challengeState.asStateFlow()
@@ -43,6 +42,9 @@ class PhotoGalleryViewModel(
 
     private val _isSortByPoints = MutableStateFlow(false)
     val isSortByPoints = _isSortByPoints.asStateFlow()
+
+    val weeklyMultiplier = pointsMultiplierRepository.weeklyMultiplier
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 1)
 
     val filteredPhotos: StateFlow<List<UserChallengeItem>> = combine(
         _challengeState,
@@ -83,6 +85,7 @@ class PhotoGalleryViewModel(
                 }
 
                 _challengeState.value = updatedList
+                pointsMultiplierRepository.emitChallenges(updatedList)
             } catch (e: Exception) {
                 Log.e("SupabaseDebug", "Error: ${e.message}")
             }
@@ -109,9 +112,20 @@ class PhotoGalleryViewModel(
         }
     }
 
+    val latestCompletedChallenges: StateFlow<List<UserChallengeItem>> = _challengeState
+        .map { list ->
+            list
+                .sortedByDescending { it.createdAt }
+                .take(2)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
     val stats: StateFlow<UserStats> = _challengeState
         .map { list ->
-            val list = _challengeState.value
             var wonCount = 0
             var lostCount = 0
             var skippedCount = 0
@@ -153,5 +167,4 @@ class PhotoGalleryViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = UserStats()
         )
-
 }

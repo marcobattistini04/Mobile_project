@@ -1,5 +1,6 @@
 package com.example.snaphunt
 
+import android.content.Context
 import android.os.Bundle
 import org.koin.androidx.compose.KoinAndroidContext
 import androidx.activity.ComponentActivity
@@ -40,6 +41,7 @@ import com.example.snaphunt.user_settings.SettingsViewModel
 import com.example.snaphunt.ui.theme.SnapHuntTheme
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.android.ext.android.getKoin
@@ -48,6 +50,9 @@ import org.koin.androidx.compose.koinViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch(Dispatchers.IO) {
+            clearTempFiles(applicationContext)
+        }
         enableEdgeToEdge()
         val supabase = getKoin().get<SupabaseClient>()
         lifecycleScope.launch {
@@ -59,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 val photoSyncViewModel: PhotoSyncViewModel = koinViewModel<PhotoSyncViewModel>()
                 val authViewModel: AuthViewModel  = koinViewModel <AuthViewModel>()
                 val settingsViewModel: SettingsViewModel = koinViewModel <SettingsViewModel>()
-                val photoGalleryViewModel: PhotoGalleryViewModel = koinViewModel < PhotoGalleryViewModel> ()
+                val photoGalleryViewModel: PhotoGalleryViewModel = koinViewModel <PhotoGalleryViewModel> ()
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                 val authState by authViewModel.state.collectAsStateWithLifecycle()
 
@@ -130,7 +135,7 @@ fun NavGraph(
     ) {
 
         composable<SnapHuntRoute.HomeScreen> {
-            HomeScreen(objectDetectionViewModel, photoSyncViewModel, authViewModel, navigationController, themeState, themeActions)
+            HomeScreen(objectDetectionViewModel, photoSyncViewModel, photoGalleryViewModel, authViewModel, navigationController, themeState, themeActions)
         }
 
         composable<SnapHuntRoute.ProfileScreen> {
@@ -153,6 +158,21 @@ fun NavGraph(
 
         composable<SnapHuntRoute.SettingsScreen> {
             SettingsScreen(navigationController, themeState, themeActions)
+        }
+    }
+}
+
+
+// clear all tmp_images obtained during the photo hunt sequence at the system-folder sdcard/Android/data/com.example.snaphunt/cache
+fun clearTempFiles(context: Context) {
+    val cacheDir = context.externalCacheDir ?: return
+    val files = cacheDir.listFiles { _, name -> name.startsWith("snaphunt_tmp") }
+
+    files?.forEach { file ->
+        try {
+            file.delete()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

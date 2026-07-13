@@ -55,11 +55,9 @@ class SyncManager(
                 }
             )
 
-            println("[DEBUG_DB] Code insert executed without crash!!!!")
             true
 
         } catch (e: Exception) {
-            println("[DEBUG_DB] ERROR encountered during SYNC from db!!!!: ${e.localizedMessage}")
             e.printStackTrace()
             false
         }

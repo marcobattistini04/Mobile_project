@@ -1,20 +1,20 @@
 package com.example.snaphunt.ui.screens.home
 
-import android.widget.Toast
-import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.snaphunt.image_recognition.ObjectDetectionViewModel
+import com.example.snaphunt.photos.PhotoGalleryViewModel
 import com.example.snaphunt.photos.PhotoSyncViewModel
 import com.example.snaphunt.photos.ScreenState
 import com.example.snaphunt.presentation.sign_in.AuthViewModel
@@ -26,6 +26,7 @@ import com.example.snaphunt.user_settings.SettingsState
 fun HomeContent(
     objectDetectionViewModel: ObjectDetectionViewModel,
     photoSyncViewModel: PhotoSyncViewModel,
+    photoGalleryViewModel: PhotoGalleryViewModel,
     authViewModel: AuthViewModel,
     navigationController: NavHostController,
     themeState: SettingsState,
@@ -37,19 +38,29 @@ fun HomeContent(
     Scaffold(
         topBar = { AppBar(isNavigationEnabled = canNavigate, title = "SnapHunt", navigationController) }
     ) {contentPadding ->
-        LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(contentPadding).padding(12.dp).fillMaxSize()
+        Column(
+            modifier = Modifier
+                .padding(contentPadding)
+                .padding(12.dp)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
         ) {
-            item { HomeHeader(authViewModel, themeState, themeActions) }
-            item { QuickActions(
+            HomeHeader(
+                authViewModel,
+                photoSyncViewModel,
+                photoGalleryViewModel,
+                themeState,
+                themeActions
+            )
+            QuickActions(
                 objectDetectionViewModel,
                 photoSyncViewModel,
+                photoGalleryViewModel,
                 authViewModel,
                 themeState,
                 themeActions
-            ) }
-            item { AboutApp(themeState, themeActions) }
+            )
+
         }
     }
 
