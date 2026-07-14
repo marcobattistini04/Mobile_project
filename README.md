@@ -13,8 +13,9 @@ L'app propone sfide fotografiche dinamiche: l'utente deve catturare oggetti spec
 - **Autenticazione:** Integrazione sicura tramite Google Credential Manager.
 
 ## Stack tecnologico
+- **Versione Android Studio utilizzata** Panda 1, patch rilasciata in data 13/02/2026
 - **Linguaggio:** Kotlin
 - **Framework:** Android SDK
-- **Machine Learning:** TensorFlow Lite, MediaPipe Tasks Vision
+- **Modello utilizzato:** efficientdet_lite2.tflite, input size: 448*448
 - **Backend/Database:** Supabase 
 - **Persistenza Locale:** Room
